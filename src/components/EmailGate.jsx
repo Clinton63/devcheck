@@ -60,6 +60,9 @@ export default function EmailGate({ onVerified }) {
           <div className="eye">Clinton Barker Property · eXp Realty SA</div>
           <div className="ttl" style={{fontSize:'28px',marginBottom:'4px'}}>DevCheck</div>
           <div className="sub">SA Development Feasibility Tool</div>
+          <div style={{display:'inline-block',marginTop:'8px',background:'rgba(30,58,95,0.08)',border:'1px solid #CBD5E0',borderRadius:'3px',padding:'3px 10px',fontSize:'10px',color:'#1E3A5F',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'.1em',textTransform:'uppercase'}}>
+            South Australia only
+          </div>
         </div>
 
         {screen === 'email' && (

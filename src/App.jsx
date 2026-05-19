@@ -217,8 +217,11 @@ export default function App() {
         {step===0&&(
           <div className="card anim">
             <div className="cstep">Welcome</div>
-            <div className="ctitle">CB Development Feasibility</div>
-            <div className="cdesc">Professional step-by-step feasibility for SA residential development sites — from quick Tick &amp; Flick to full PASS/MARGINAL/FAIL analysis with risks and next steps.</div>
+            <div className="ctitle">DevCheck — SA Feasibility</div>
+            <div className="cdesc">Professional step-by-step feasibility for South Australian residential development sites — from quick Tick &amp; Flick to full PASS/MARGINAL/FAIL analysis with risks and next steps.</div>
+            <div style={{background:'rgba(30,58,95,0.06)',border:'1px solid #CBD5E0',borderLeft:'3px solid #1E3A5F',borderRadius:'4px',padding:'10px 14px',marginBottom:'4px',fontSize:'12px',color:'#1E3A5F',lineHeight:'1.5'}}>
+              <strong>⚠ South Australia only.</strong> This tool uses SA Planning &amp; Design Code zones, SA Water and SAPN rules, and SA-specific cost benchmarks. It is not suitable for developments in other states.
+            </div>
             <div className="mg">
               <div className={`mc ${mode==="tickflick"?"on":""}`} onClick={()=>setMode("tickflick")}>
                 <div className="mi">✓</div>
@@ -253,7 +256,7 @@ export default function App() {
             <div className="cdesc">Please read and acknowledge the disclaimer, then select your experience level.</div>
             <div className="disc">
               <div className="dt">Important Disclaimer</div>
-              <div className="dd">This feasibility tool provides a <strong>preliminary guide only</strong>, based strictly on your inputs. All figures must be independently verified with qualified professionals — including a town planner, builder, quantity surveyor, accountant, solicitor, and financial adviser — before any decision is made.{"\n\n"}No financial, investment, legal or planning advice is being provided. Clinton Barker Property and eXp Realty accept no liability for decisions made using this tool.</div>
+              <div className="dd">This feasibility tool provides a <strong>preliminary guide only</strong>, based strictly on your inputs. All figures must be independently verified with qualified professionals — including a town planner, builder, quantity surveyor, accountant, solicitor, and financial adviser — before any decision is made.{"\n\n"}No financial, investment, legal or planning advice is being provided. Clinton Barker Property and eXp Realty accept no liability for decisions made using this tool.{"\n\n"}<strong>Important:</strong> DevCheck is calibrated for South Australian residential developments only, using the SA Planning &amp; Design Code, SA Water, and SAPN rules. It is not suitable for use in other Australian states.</div>
               <label className="dc">
                 <input type="checkbox" checked={disc} onChange={e=>setDisc(e.target.checked)}/>
                 <span>I understand this is a preliminary guide only and will verify all figures with qualified professionals before making decisions.</span>
@@ -281,7 +284,7 @@ export default function App() {
             <div className="cdesc">Please read and acknowledge the disclaimer, then select your experience level.</div>
             <div className="disc">
               <div className="dt">Important Disclaimer</div>
-              <div className="dd">This feasibility tool provides a <strong>preliminary guide only</strong>, based strictly on your inputs. All figures must be independently verified with qualified professionals — including a town planner, builder, quantity surveyor, accountant, solicitor, and financial adviser — before any decision is made.{"\n\n"}No financial, investment, legal or planning advice is being provided. Clinton Barker Property and eXp Realty accept no liability for decisions made using this tool.</div>
+              <div className="dd">This feasibility tool provides a <strong>preliminary guide only</strong>, based strictly on your inputs. All figures must be independently verified with qualified professionals — including a town planner, builder, quantity surveyor, accountant, solicitor, and financial adviser — before any decision is made.{"\n\n"}No financial, investment, legal or planning advice is being provided. Clinton Barker Property and eXp Realty accept no liability for decisions made using this tool.{"\n\n"}<strong>Important:</strong> DevCheck is calibrated for South Australian residential developments only, using the SA Planning &amp; Design Code, SA Water, and SAPN rules. It is not suitable for use in other Australian states.</div>
               <label className="dc">
                 <input type="checkbox" checked={disc} onChange={e=>setDisc(e.target.checked)}/>
                 <span>I understand this is a preliminary guide only and will verify all figures with qualified professionals before making decisions.</span>
