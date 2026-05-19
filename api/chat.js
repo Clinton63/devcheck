@@ -46,10 +46,14 @@ export default async function handler(req, res) {
 
     // Increment run_count for initial calls only
     if (isInitial) {
-      await supabase
+      const { error: updateError } = await supabase
         .from('users')
         .update({ run_count: userData.run_count + 1 })
         .eq('id', user.id)
+      if (updateError) {
+        console.error('run_count update failed:', updateError)
+        return res.status(500).json({ error: 'Usage tracking error. Please try again.' })
+      }
     }
 
     return res.status(200).json({ reply })
