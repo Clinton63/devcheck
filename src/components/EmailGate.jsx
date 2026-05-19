@@ -34,7 +34,7 @@ export default function EmailGate({ onVerified }) {
   async function verifyOtp(e) {
     e.preventDefault()
     setError('')
-    if (otp.length !== 6) { setError('Please enter the 6-digit code.'); return }
+    if (otp.length < 6) { setError('Please enter the verification code.'); return }
     setLoading(true)
     const { data, error: verifyError } = await supabase.auth.verifyOtp({
       email: email.trim().toLowerCase(),
@@ -106,7 +106,7 @@ export default function EmailGate({ onVerified }) {
                   type="text"
                   inputMode="numeric"
                   pattern="[0-9]*"
-                  maxLength={6}
+                  maxLength={8}
                   placeholder="000000"
                   value={otp}
                   onChange={e => setOtp(e.target.value.replace(/\D/g,''))}
@@ -115,7 +115,7 @@ export default function EmailGate({ onVerified }) {
                 />
               </div>
               {error && <div className={`fh ${error==='New code sent.'?'ok':'w'}`} style={{marginBottom:'10px'}}>{error==='New code sent.'?'✓':'⚠'} {error}</div>}
-              <button className="bp" type="submit" disabled={loading || otp.length !== 6} style={{width:'100%',justifyContent:'center'}}>
+              <button className="bp" type="submit" disabled={loading || otp.length < 6} style={{width:'100%',justifyContent:'center'}}>
                 {loading ? 'Verifying…' : 'Verify & start →'}
               </button>
             </form>
