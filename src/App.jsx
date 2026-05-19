@@ -30,7 +30,7 @@ export default function App() {
   const [tf, setTf] = useState({dwellings:"",estGRV:"",estTotalCost:""})
   const [concept, setConcept] = useState({dwellings:"",type:"townhouse",identical:"yes"})
   const [lots, setLots] = useState([])
-  const [costs, setCosts] = useState({purchasePrice:"",purchaseCostPct:"",targetProfit:"",buildTotal:"",buildM2:"",buildRateM2:"",demolition:"",civils:"",services:"",saWaterDistance:"",sapnConnection:"",contingencyPct:"",designFees:"",surveyorFees:"",engineeringFees:"",ipAssignment:"",legalFees:"",otherFees:"",marketing:"",authorityFees:"",landscaping:"",holdingRates:"",holdingInsurance:"",holdingOther:"",agentCommission:"",conveyancingPct:"",sellingCostPct:"",gstTreatment:"",lvr:"",rate:"",durationMonths:"",interestMethod:"A"})
+  const [costs, setCosts] = useState({purchasePrice:"",purchaseCostPct:"",targetProfit:"",buildTotal:"",buildM2:"",buildRateM2:"",demolition:"",civils:"",services:"",saWaterDistance:"",sapnConnection:"",contingencyPct:"",designFees:"",surveyorFees:"",engineeringFees:"",ipAssignment:"",legalFees:"",otherFees:"",marketing:"",authorityFees:"",landscaping:"",holdingRates:"",holdingInsurance:"",holdingOther:"",agentCommission:"",conveyancingType:"pct",conveyancingPct:"",conveyancingFixed:"",sellingCostPct:"",gstTreatment:"",lvr:"",rate:"",durationMonths:"",interestMethod:"A"})
   const aiRef = useRef(null)
 
   useEffect(() => {
@@ -105,7 +105,7 @@ export default function App() {
       if (step === 4) return true // Constraints
       if (step === 5) return !!concept.dwellings // Concept
       if (step === 6) return lots.length > 0 && lots.every(l => l.strategy && (l.salePrice || l.endValue)) // Exit
-      if (step === 7) return !!(costs.purchasePrice && costs.purchaseCostPct && costs.targetProfit && costs.buildTotal && costs.demolition !== "" && costs.civils !== "" && costs.services !== "" && costs.contingencyPct && costs.designFees !== "" && costs.surveyorFees !== "" && costs.engineeringFees !== "" && costs.ipAssignment !== "" && costs.legalFees !== "" && costs.otherFees !== "" && costs.marketing !== "" && costs.authorityFees !== "" && costs.landscaping !== "" && costs.holdingRates !== "" && costs.holdingInsurance !== "" && costs.holdingOther !== "" && costs.agentCommission && costs.conveyancingPct && costs.gstTreatment && costs.lvr && costs.rate && costs.durationMonths)
+      if (step === 7) return !!(costs.purchasePrice && costs.purchaseCostPct && costs.targetProfit && costs.buildTotal && costs.demolition !== "" && costs.civils !== "" && costs.services !== "" && costs.contingencyPct && costs.designFees !== "" && costs.surveyorFees !== "" && costs.engineeringFees !== "" && costs.ipAssignment !== "" && costs.legalFees !== "" && costs.otherFees !== "" && costs.marketing !== "" && costs.authorityFees !== "" && costs.landscaping !== "" && costs.holdingRates !== "" && costs.holdingInsurance !== "" && costs.holdingOther !== "" && costs.agentCommission && (costs.conveyancingType==="fixed" ? costs.conveyancingFixed !== "" : costs.conveyancingPct !== "") && costs.gstTreatment && costs.lvr && costs.rate && costs.durationMonths)
     }
     if (mode === "tickflick") {
       if (step === 1) return disc && !!exp
@@ -130,7 +130,7 @@ export default function App() {
     setTf({dwellings:"",estGRV:"",estTotalCost:""})
     setConcept({dwellings:"",type:"townhouse",identical:"yes"})
     setLots([])
-    setCosts({purchasePrice:"",purchaseCostPct:"",targetProfit:"",buildTotal:"",buildM2:"",buildRateM2:"",demolition:"",civils:"",services:"",saWaterDistance:"",sapnConnection:"",contingencyPct:"",designFees:"",surveyorFees:"",engineeringFees:"",ipAssignment:"",legalFees:"",otherFees:"",marketing:"",authorityFees:"",landscaping:"",holdingRates:"",holdingInsurance:"",holdingOther:"",agentCommission:"",conveyancingPct:"",sellingCostPct:"",gstTreatment:"",lvr:"",rate:"",durationMonths:"",interestMethod:"A"})
+    setCosts({purchasePrice:"",purchaseCostPct:"",targetProfit:"",buildTotal:"",buildM2:"",buildRateM2:"",demolition:"",civils:"",services:"",saWaterDistance:"",sapnConnection:"",contingencyPct:"",designFees:"",surveyorFees:"",engineeringFees:"",ipAssignment:"",legalFees:"",otherFees:"",marketing:"",authorityFees:"",landscaping:"",holdingRates:"",holdingInsurance:"",holdingOther:"",agentCommission:"",conveyancingType:"pct",conveyancingPct:"",conveyancingFixed:"",sellingCostPct:"",gstTreatment:"",lvr:"",rate:"",durationMonths:"",interestMethod:"A"})
   }
 
   const tfResult = runTF({...site, ...tf})
@@ -728,14 +728,6 @@ export default function App() {
                 </div>
               </div>
 
-              {/* ── MARKETING ── */}
-              <div className="div"><span>Marketing</span></div>
-              <div className="fl">
-                <label>Marketing / Advertising ($) *</label>
-                <input type="number" placeholder="Enter $ or 0" value={costs.marketing} onChange={e=>setCosts(p=>({...p,marketing:e.target.value}))}/>
-                <div className="fh">REA/Domain listings, photography, signage, social media. Separate from agent commission. Enter 0 if covered entirely in selling fee.</div>
-              </div>
-
               {/* ── AUTHORITIES ── */}
               <div className="div"><span>Council &amp; Authority Fees</span></div>
               <div className="fl">
@@ -777,8 +769,8 @@ export default function App() {
                   <strong>Total holding costs: </strong>${(parseFloat(costs.holdingRates||0)+parseFloat(costs.holdingInsurance||0)+parseFloat(costs.holdingOther||0)).toLocaleString("en-AU")}
                 </div>
               )}
-              {/* ── SELLING AGENT FEES ── */}
-              <div className="div"><span>Selling Agent Fees</span></div>
+              {/* ── SELLING COSTS ── */}
+              <div className="div"><span>Selling Costs</span></div>
               <div className="fr">
                 <div className="fl">
                   <label>Selling Agent Commission % *</label>
@@ -786,10 +778,28 @@ export default function App() {
                   <div className="fh">Your agreed agent rate. Applied to SOLD lots only. Do not use a rate you haven't confirmed.</div>
                 </div>
                 <div className="fl">
-                  <label>Conveyancing / Settlement % *</label>
-                  <input type="number" placeholder="Typically 0.3–0.5%" value={costs.conveyancingPct} onChange={e=>setCosts(p=>({...p,conveyancingPct:e.target.value}))}/>
-                  <div className="fh">Vendor conveyancing at settlement. Typically $1,500–$2,500 per lot as a % of sale price.</div>
+                  <label>Conveyancing / Settlement *</label>
+                  <div className="seg" style={{marginBottom:6}}>
+                    <button className={`sb ${costs.conveyancingType==="pct"?"on":""}`} onClick={()=>setCosts(p=>({...p,conveyancingType:"pct"}))}>% of sale price</button>
+                    <button className={`sb ${costs.conveyancingType==="fixed"?"on":""}`} onClick={()=>setCosts(p=>({...p,conveyancingType:"fixed"}))}>Fixed $ total</button>
+                  </div>
+                  {costs.conveyancingType==="pct" ? (
+                    <>
+                      <input type="number" placeholder="e.g. 0.4" value={costs.conveyancingPct} onChange={e=>setCosts(p=>({...p,conveyancingPct:e.target.value}))}/>
+                      <div className="fh">% of total sold proceeds. Typically $1,500–$2,500 per lot (roughly 0.3–0.5%). Enter 0 if included in agent fee.</div>
+                    </>
+                  ) : (
+                    <>
+                      <input type="number" placeholder="e.g. 3600 (= $1,800 × 2 lots)" value={costs.conveyancingFixed} onChange={e=>setCosts(p=>({...p,conveyancingFixed:e.target.value}))}/>
+                      <div className="fh">Total fixed conveyancing cost across all sold lots. e.g. $1,800 per lot × 2 lots = enter 3600. Enter 0 if included in agent fee.</div>
+                    </>
+                  )}
                 </div>
+              </div>
+              <div className="fl">
+                <label>Marketing / Advertising ($) *</label>
+                <input type="number" placeholder="Enter $ or 0" value={costs.marketing} onChange={e=>setCosts(p=>({...p,marketing:e.target.value}))}/>
+                <div className="fh">REA/Domain listings, photography, signage, social media. Separate from agent commission. Enter 0 if covered entirely in selling fee.</div>
               </div>
               {costs.agentCommission&&costs.conveyancingPct&&(
                 <div className="info" style={{borderLeft:`3px solid ${C.green}`}}>
@@ -849,6 +859,38 @@ export default function App() {
                   <div className="fh">{costs.interestMethod==="A"?"Milestone drawdown — progressively drawn (~55% avg). Realistic for construction loans.":"Full balance — most conservative, highest interest estimate."}</div>
                 </div>
               </div>
+              {!canNext() && (()=>{
+                const missing = []
+                if (!costs.purchasePrice) missing.push("Purchase Price")
+                if (!costs.purchaseCostPct) missing.push("Stamp Duty %")
+                if (!costs.targetProfit) missing.push("Target Profit %")
+                if (!costs.buildTotal) missing.push("Build Total")
+                if (costs.demolition==="") missing.push("Demolition (enter 0 if none)")
+                if (costs.civils==="") missing.push("Civils (enter 0 if none)")
+                if (costs.services==="") missing.push("Services (enter 0 if none)")
+                if (!costs.contingencyPct) missing.push("Construction Contingency %")
+                if (costs.designFees==="") missing.push("Design & Authorities (enter 0 if none)")
+                if (costs.surveyorFees==="") missing.push("Surveyor Fees (enter 0 if none)")
+                if (costs.engineeringFees==="") missing.push("Engineering (enter 0 if none)")
+                if (costs.ipAssignment==="") missing.push("IP / Assignment (enter 0 if none)")
+                if (costs.legalFees==="") missing.push("Legals (enter 0 if none)")
+                if (costs.otherFees==="") missing.push("Other Fees (enter 0 if none)")
+                if (costs.authorityFees==="") missing.push("Authority Fees (enter 0 if none)")
+                if (costs.landscaping==="") missing.push("Landscaping (enter 0 if none)")
+                if (costs.holdingRates==="") missing.push("Council Rates (enter 0 if none)")
+                if (costs.holdingInsurance==="") missing.push("PL Insurance (enter 0 if none)")
+                if (costs.holdingOther==="") missing.push("Other Holding (enter 0 if none)")
+                if (!costs.agentCommission) missing.push("Agent Commission %")
+                if (costs.conveyancingType==="fixed" ? costs.conveyancingFixed==="" : !costs.conveyancingPct) missing.push("Conveyancing / Settlement")
+                if (costs.marketing==="") missing.push("Marketing (enter 0 if none)")
+                if (!costs.gstTreatment) missing.push("GST Treatment — select one of the 4 options")
+                if (!costs.lvr) missing.push("LVR %")
+                if (!costs.rate) missing.push("Interest Rate %")
+                if (!costs.durationMonths) missing.push("Loan Duration")
+                return missing.length > 0 ? (
+                  <div className="fh w" style={{marginTop:8}}>⚠ Still required: {missing.join(" · ")}</div>
+                ) : null
+              })()}
               <div className="br">
                 <button className="bs" onClick={()=>setStep(6)}>← Back</button>
                 <button className="bp" disabled={!canNext()} onClick={next}>Run Full Feasibility →</button>

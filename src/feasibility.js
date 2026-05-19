@@ -62,8 +62,9 @@ export function buildPromptFromState({ lots, costs, concept, site, exp }) {
   const landscaping=parseFloat(costs.landscaping||0);
   const holdingTotal=parseFloat(costs.holdingRates||0)+parseFloat(costs.holdingInsurance||0)+parseFloat(costs.holdingOther||0);
   const pc=parseFloat(costs.purchasePrice||0)*(parseFloat(costs.purchaseCostPct||0))/100;
-  const sellingPct=(parseFloat(costs.agentCommission||0)+parseFloat(costs.conveyancingPct||0))/100;
-  const sellingCosts=soldGRV*sellingPct;
+  const agentCommissionCost=soldGRV*(parseFloat(costs.agentCommission||0))/100;
+  const conveyancingCost=costs.conveyancingType==="fixed"?parseFloat(costs.conveyancingFixed||0):soldGRV*(parseFloat(costs.conveyancingPct||0))/100;
+  const sellingCosts=agentCommissionCost+conveyancingCost;
   const totalProjectCosts=buildTotal+demo+civils+services+cont+profFees+marketing+authorities+landscaping+holdingTotal;
   const totalLandCosts=parseFloat(costs.purchasePrice||0)+pc;
   const loan=(totalLandCosts+totalProjectCosts)*(parseFloat(costs.lvr||0))/100;
@@ -90,7 +91,9 @@ GRV = ${fmt(grv)} | SOLD GRV = ${fmt(soldGRV)}
 SALE PROCEEDS
 New Dwellings: ${concept.dwellings} × ${concept.type}
 Gross Sale Proceeds (incl GST): ${fmt(soldGRV)}
-Less Sales & Marketing (${((parseFloat(costs.agentCommission||0)+parseFloat(costs.conveyancingPct||0))).toFixed(2)}%): -${fmt(sellingCosts)}
+Less Agent Commission (${costs.agentCommission}%): -${fmt(agentCommissionCost)}
+Less Conveyancing / Settlement (${costs.conveyancingType==="fixed"?`fixed $${Number(costs.conveyancingFixed).toLocaleString("en-AU")}`:`${costs.conveyancingPct}% of sold GRV`}): -${fmt(conveyancingCost)}
+Less Marketing / Advertising: -${fmt(parseFloat(costs.marketing||0))}
 NET SALE PROCEEDS: ${fmt(soldGRV-sellingCosts)}
 
 PROJECT COSTS
