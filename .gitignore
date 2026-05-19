@@ -5,3 +5,9 @@ dist
 .env*.local
 .env.*
 .DS_Store
+.superpowers/
+IMG_*.jpg
+IMG_*.MOV
+docs/
+cb-feasibility-app.jsx
+lovable-instructions.md
