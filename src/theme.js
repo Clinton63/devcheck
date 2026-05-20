@@ -12,8 +12,8 @@ export const C = {
   goldDim:    "#8B7340",
   goldFaint:  "rgba(201,170,110,0.10)",
   text:       "#1A202C",
-  textMuted:  "#4A5568",
-  textDim:    "#718096",
+  textMuted:  "#2D3748"
+  textDim:    "#4A5568"
   green:      "#38A169",
   amber:      "#D97706",
   red:        "#E53E3E",
