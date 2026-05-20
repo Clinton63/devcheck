@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   // Get user record
   const { data: userData, error: userError } = await supabase
     .from('users')
-    .select('run_count, subscribed')
+    .select('run_count, subscribed, is_admin')
     .eq('id', user.id)
     .single()
 
@@ -28,8 +28,8 @@ export default async function handler(req, res) {
 
   const { messages, system, isInitial } = req.body
 
-  // Enforce usage limit on initial feasibility calls only
-  if (isInitial && !userData.subscribed && userData.run_count >= 2) {
+  // Enforce usage limit on initial feasibility calls only — admins are exempt
+  if (isInitial && !userData.subscribed && !userData.is_admin && userData.run_count >= 2) {
     return res.status(402).json({ error: 'Usage limit reached' })
   }
 
@@ -37,15 +37,15 @@ export default async function handler(req, res) {
   try {
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-opus-4-5',
       max_tokens: 1500,
       system,
       messages,
     })
     const reply = response.content.map(b => b.text || '').join('')
 
-    // Increment run_count for initial calls only
-    if (isInitial) {
+    // Increment run_count for initial calls only — admins are exempt
+    if (isInitial && !userData.is_admin) {
       const { error: updateError } = await supabase
         .from('users')
         .update({ run_count: userData.run_count + 1 })

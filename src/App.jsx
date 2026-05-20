@@ -198,6 +198,7 @@ export default function App() {
                 <UsageBadge
                   runCount={userRecord.run_count}
                   subscribed={userRecord.subscribed}
+                  isAdmin={userRecord.is_admin}
                   email={session.user.email}
                   onSignOut={() => { signOut(); setSession(null); setUserRecord(null) }}
                 />
@@ -973,6 +974,29 @@ export default function App() {
             </div>
           </div>
         )}
+
+        {/* Footer */}
+        <div style={{borderTop:'1px solid #E2E8F0',marginTop:40,paddingTop:16,paddingBottom:24,display:'flex',flexWrap:'wrap',alignItems:'center',justifyContent:'space-between',gap:10}}>
+          <div style={{fontSize:11,color:'#A0AEC0',lineHeight:1.6}}>
+            © {new Date().getFullYear()} Clinton Barker Property · eXp Realty SA &nbsp;·&nbsp; DevCheck is a preliminary guide only. Not financial, legal, planning or tax advice.
+          </div>
+          {userRecord?.subscribed && (
+            <button
+              onClick={async () => {
+                const token = await getAccessToken()
+                const r = await fetch('/api/create-portal-session', {
+                  method: 'POST',
+                  headers: { 'Authorization': `Bearer ${token}` }
+                })
+                const d = await r.json()
+                if (d.url) window.location.href = d.url
+              }}
+              style={{background:'none',border:'1px solid #E2E8F0',borderRadius:3,color:'#718096',fontSize:11,padding:'4px 12px',cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}
+            >
+              Manage Account / Cancel Subscription
+            </button>
+          )}
+        </div>
 
       </div>
     </>

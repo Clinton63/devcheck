@@ -23,7 +23,7 @@ export async function getUserRecord() {
   if (!session) return null
   const { data } = await supabase
     .from('users')
-    .select('run_count, subscribed')
+    .select('run_count, subscribed, is_admin')
     .eq('id', session.user.id)
     .single()
   return data
