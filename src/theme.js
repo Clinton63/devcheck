@@ -12,7 +12,7 @@ export const C = {
   goldDim:    "#8B7340",
   goldFaint:  "rgba(201,170,110,0.10)",
   text:       "#1A202C",
-  textMuted:  "#2D3748"
+  textMuted:  "#2D3748",
   textDim:    "#4A5568",
   green:      "#38A169",
   amber:      "#D97706",
