@@ -220,7 +220,7 @@ export default function App() {
             <div className="cstep">Welcome</div>
             <div className="ctitle">DevCheck — SA Feasibility</div>
             <div className="cdesc">Professional step-by-step feasibility for South Australian residential development sites — from quick Tick &amp; Flick to full PASS/MARGINAL/FAIL analysis with risks and next steps.</div>
-            <div style={{background:'rgba(30,58,95,0.06)',border:'1px solid #CBD5E0',borderLeft:'3px solid #1E3A5F',borderRadius:'4px',padding:'10px 14px',marginBottom:'4px',fontSize:'12px',color:'#1E3A5F',lineHeight:'1.5'}}>
+            <div style={{background:'rgba(52,168,110,0.06)',border:'1px solid #2E2E2E',borderLeft:'3px solid #34A86E',borderRadius:'8px',padding:'10px 14px',marginBottom:'4px',fontSize:'12px',color:'#8ECFB0',lineHeight:'1.5'}}>
               <strong>⚠ South Australia only.</strong> This tool uses SA Planning &amp; Design Code zones, SA Water and SAPN rules, and SA-specific cost benchmarks. It is not suitable for developments in other states.
             </div>
             <div className="mg">
@@ -821,7 +821,7 @@ export default function App() {
                     ["absorbed","GST absorbed into price / not applicable — sale prices are net of GST. No GST line shown."],
                     ["unknown","Not yet confirmed — need to check with accountant"],
                   ].map(([val,lbl])=>(
-                    <button key={val} style={{background:costs.gstTreatment===val?"#C9AA6E":"#F0F4F8",border:`1px solid ${costs.gstTreatment===val?"#C9AA6E":"#E2E8F0"}`,borderRadius:3,padding:"10px 14px",color:costs.gstTreatment===val?"#1A202C":"#718096",fontFamily:"DM Sans,sans-serif",fontSize:13,cursor:"pointer",textAlign:"left",transition:"all .2s",fontWeight:costs.gstTreatment===val?600:400}} onClick={()=>setCosts(p=>({...p,gstTreatment:val}))}>
+                    <button key={val} style={{background:costs.gstTreatment===val?"#34A86E":"#111111",border:`1px solid ${costs.gstTreatment===val?"#34A86E":"#2E2E2E"}`,borderRadius:8,padding:"10px 14px",color:costs.gstTreatment===val?"#fff":"#A0A8B0",fontFamily:"DM Sans,sans-serif",fontSize:13,cursor:"pointer",textAlign:"left",transition:"all .2s",fontWeight:costs.gstTreatment===val?600:400}} onClick={()=>setCosts(p=>({...p,gstTreatment:val}))}>
                       {lbl}
                     </button>
                   ))}
@@ -913,7 +913,7 @@ export default function App() {
                   <div><div className="tflb">{c.label}</div><div className="tfnt">{c.note}</div></div>
                 </div>
               ))}
-              <div style={{marginTop:18,padding:"14px 18px",background:C.surfaceAlt,borderRadius:4,border:`1px solid ${C.border}`}}>
+              <div style={{marginTop:18,padding:"14px 18px",background:C.surfaceAlt,borderRadius:8,border:`1px solid ${C.border}`}}>
                 <div style={{fontSize:9,color:C.textMuted,letterSpacing:".1em",textTransform:"uppercase",fontFamily:"JetBrains Mono,monospace",marginBottom:7}}>Verdict</div>
                 <span className={`vrd ${tfResult.vClass}`}>{tfResult.vClass}</span>
                 <div style={{marginTop:7,fontSize:13.5,color:C.text,fontWeight:500}}>{tfResult.verdict}</div>
@@ -976,8 +976,8 @@ export default function App() {
         )}
 
         {/* Footer */}
-        <div style={{borderTop:'1px solid #E2E8F0',marginTop:40,paddingTop:16,paddingBottom:24,display:'flex',flexWrap:'wrap',alignItems:'center',justifyContent:'space-between',gap:10}}>
-          <div style={{fontSize:11,color:'#A0AEC0',lineHeight:1.6}}>
+        <div style={{borderTop:'1px solid #2E2E2E',marginTop:40,paddingTop:16,paddingBottom:24,display:'flex',flexWrap:'wrap',alignItems:'center',justifyContent:'space-between',gap:10}}>
+          <div style={{fontSize:11,color:'#6B7280',lineHeight:1.6}}>
             © {new Date().getFullYear()} Clinton Barker Property · eXp Realty SA &nbsp;·&nbsp; DevCheck is a preliminary guide only. Not financial, legal, planning or tax advice.
           </div>
           {userRecord?.subscribed && (
@@ -991,7 +991,7 @@ export default function App() {
                 const d = await r.json()
                 if (d.url) window.location.href = d.url
               }}
-              style={{background:'none',border:'1px solid #E2E8F0',borderRadius:3,color:'#718096',fontSize:11,padding:'4px 12px',cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}
+              style={{background:'none',border:'1px solid #2E2E2E',borderRadius:4,color:'#A0A8B0',fontSize:11,padding:'4px 12px',cursor:'pointer',fontFamily:"'DM Sans',sans-serif"}}
             >
               Manage Account / Cancel Subscription
             </button>

@@ -1,5 +1,3 @@
-// "What you'll need" screen — shown before Full Feasibility only
-// Props: onReady() — user confirmed ready, onSwitchMode() — go back to mode selection
 export default function PreflightChecklist({ onReady, onSwitchMode }) {
   return (
     <div className="card anim">
@@ -11,8 +9,8 @@ export default function PreflightChecklist({ onReady, onSwitchMode }) {
 
       <div style={{display:'flex',flexDirection:'column',gap:'16px',marginBottom:'24px'}}>
 
-        <div className="disc" style={{borderLeftColor:'#1E3A5F'}}>
-          <div className="dt" style={{color:'#1E3A5F'}}>Site &amp; concept — you likely know these</div>
+        <div className="disc" style={{borderLeftColor:'#34A86E'}}>
+          <div className="dt" style={{color:'#8ECFB0'}}>Site &amp; concept — you likely know these</div>
           <ul style={{listStyle:'none',padding:0,margin:0,display:'flex',flexDirection:'column',gap:'6px'}}>
             {[
               'Property address, council name, and zoning code',
@@ -20,14 +18,14 @@ export default function PreflightChecklist({ onReady, onSwitchMode }) {
               'Number of dwellings planned and type (townhouse, unit, house, etc.)',
               'Whether you plan to sell or keep each lot',
             ].map(item => (
-              <li key={item} style={{fontSize:'12px',color:'#4A5568',display:'flex',gap:'8px',lineHeight:'1.5'}}>
-                <span style={{color:'#38A169',flexShrink:0}}>✓</span>{item}
+              <li key={item} style={{fontSize:'12px',color:'#A0A8B0',display:'flex',gap:'8px',lineHeight:'1.5'}}>
+                <span style={{color:'#34A86E',flexShrink:0}}>✓</span>{item}
               </li>
             ))}
           </ul>
         </div>
 
-        <div className="disc" style={{borderLeftColor:'#C9AA6E'}}>
+        <div className="disc" style={{borderLeftColor:'#34A86E'}}>
           <div className="dt">Cost estimates to have ready</div>
           <ul style={{listStyle:'none',padding:0,margin:0,display:'flex',flexDirection:'column',gap:'6px'}}>
             {[
@@ -38,22 +36,22 @@ export default function PreflightChecklist({ onReady, onSwitchMode }) {
               'Professional fees: design, surveyor, engineering, legal',
               'Finance: LVR %, interest rate %, expected project duration in months',
             ].map(item => (
-              <li key={item} style={{fontSize:'12px',color:'#4A5568',display:'flex',gap:'8px',lineHeight:'1.5'}}>
-                <span style={{color:'#C9AA6E',flexShrink:0}}>$</span>{item}
+              <li key={item} style={{fontSize:'12px',color:'#A0A8B0',display:'flex',gap:'8px',lineHeight:'1.5'}}>
+                <span style={{color:'#34A86E',flexShrink:0}}>$</span>{item}
               </li>
             ))}
           </ul>
         </div>
 
-        <div className="disc" style={{borderLeftColor:'#D97706'}}>
-          <div className="dt" style={{color:'#D97706'}}>Confirm with your accountant first</div>
+        <div className="disc" style={{borderLeftColor:'#F59E0B'}}>
+          <div className="dt" style={{color:'#F59E0B'}}>Confirm with your accountant first</div>
           <ul style={{listStyle:'none',padding:0,margin:0,display:'flex',flexDirection:'column',gap:'6px'}}>
             {[
               'GST treatment (margin scheme, full GST, absorbed, or not yet confirmed)',
               'Your target profit on cost % (DevCheck defaults to 20%)',
             ].map(item => (
-              <li key={item} style={{fontSize:'12px',color:'#4A5568',display:'flex',gap:'8px',lineHeight:'1.5'}}>
-                <span style={{color:'#D97706',flexShrink:0}}>⚠</span>{item}
+              <li key={item} style={{fontSize:'12px',color:'#A0A8B0',display:'flex',gap:'8px',lineHeight:'1.5'}}>
+                <span style={{color:'#F59E0B',flexShrink:0}}>⚠</span>{item}
               </li>
             ))}
           </ul>

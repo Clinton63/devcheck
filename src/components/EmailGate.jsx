@@ -60,7 +60,7 @@ export default function EmailGate({ onVerified }) {
           <div className="eye">Clinton Barker Property · eXp Realty SA</div>
           <div className="ttl" style={{fontSize:'28px',marginBottom:'4px'}}>DevCheck</div>
           <div className="sub">SA Development Feasibility Tool</div>
-          <div style={{display:'inline-block',marginTop:'8px',background:'rgba(30,58,95,0.08)',border:'1px solid #CBD5E0',borderRadius:'3px',padding:'3px 10px',fontSize:'10px',color:'#1E3A5F',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'.1em',textTransform:'uppercase'}}>
+          <div style={{display:'inline-block',marginTop:'8px',background:'rgba(52,168,110,0.10)',border:'1px solid #34A86E',borderRadius:'4px',padding:'3px 10px',fontSize:'10px',color:'#8ECFB0',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'.1em',textTransform:'uppercase'}}>
             South Australia only
           </div>
         </div>
@@ -87,7 +87,7 @@ export default function EmailGate({ onVerified }) {
                 {loading ? 'Sending…' : 'Send verification code →'}
               </button>
             </form>
-            <div style={{fontSize:'11px',color:'#A0AEC0',marginTop:'12px',textAlign:'center',lineHeight:'1.5'}}>
+            <div style={{fontSize:'11px',color:'#6B7280',marginTop:'12px',textAlign:'center',lineHeight:'1.5'}}>
               We'll send a 6-digit code to verify your email.<br/>
               Your details are kept private and never shared.
             </div>
@@ -120,8 +120,8 @@ export default function EmailGate({ onVerified }) {
               </button>
             </form>
             <div style={{display:'flex',justifyContent:'space-between',marginTop:'12px',fontSize:'11px'}}>
-              <button onClick={() => setScreen('email')} style={{background:'none',border:'none',color:'#718096',cursor:'pointer',fontSize:'11px'}}>← Change email</button>
-              <button onClick={resend} style={{background:'none',border:'none',color:'#3182CE',cursor:'pointer',fontSize:'11px'}}>Resend code</button>
+              <button onClick={() => setScreen('email')} style={{background:'none',border:'none',color:'#A0A8B0',cursor:'pointer',fontSize:'11px'}}>← Change email</button>
+              <button onClick={resend} style={{background:'none',border:'none',color:'#34A86E',cursor:'pointer',fontSize:'11px'}}>Resend code</button>
             </div>
           </div>
         )}
