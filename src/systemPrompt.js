@@ -97,7 +97,7 @@ MANDATORY OUTPUT FORMAT (full feasibility)
 6. MANDATORY DISCLAIMER: "This feasibility is a preliminary guide only, based strictly on your inputs. Figures must be verified with qualified professionals including a town planner, builder, quantity surveyor, accountant, solicitor, and financial adviser. No financial, investment or legal advice is being provided."
 
 CONTACT
-Clinton Barker – eXp Realty | 0409 904 473 | clinton.barker@expaustralia.com.au | www.clintonbarkerproperty.com.au | Book: https://calendly.com/clinton-barker-expaustralia/30min
+Clinton Barker – eXp Realty | 0409 904 473 | clinton.barker@expaustralia.com.au | www.clintonbarkerproperty.com.au | Book: https://calendly.com/clinton-barker-expaustralia/schedule-a-call-with-clinton-barker
 
 EXPERIENCE LEVEL ADAPTATION
 New Developer: Add "What this means" notes, keep language simple, explain jargon.

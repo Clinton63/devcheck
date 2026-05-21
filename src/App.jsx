@@ -1005,7 +1005,7 @@ export default function App() {
             </div>
             <div className="cta">
               <div className="cta-n">Clinton Barker — eXp Realty</div>
-              <div className="cta-d">📞 <a href="tel:0409904473">0409 904 473</a> &nbsp;|&nbsp; 📧 <a href="mailto:clinton.barker@expaustralia.com.au">clinton.barker@expaustralia.com.au</a><br/>📅 <a href="https://calendly.com/clinton-barker-expaustralia/30min" target="_blank" rel="noopener noreferrer">Book a free 30-minute call</a></div>
+              <div className="cta-d">📞 <a href="tel:0409904473">0409 904 473</a> &nbsp;|&nbsp; 📧 <a href="mailto:clinton.barker@expaustralia.com.au">clinton.barker@expaustralia.com.au</a><br/>📅 <a href="https://calendly.com/clinton-barker-expaustralia/schedule-a-call-with-clinton-barker" target="_blank" rel="noopener noreferrer">Book a free 30-minute call</a></div>
             </div>
           </div>
         )}
@@ -1042,7 +1042,7 @@ export default function App() {
               <div className="cta-d">
                 For professional site assessments, development advice, or to explore your options:<br/>
                 📞 <a href="tel:0409904473">0409 904 473</a> &nbsp;|&nbsp; 📧 <a href="mailto:clinton.barker@expaustralia.com.au">clinton.barker@expaustralia.com.au</a><br/>
-                🌐 <a href="https://www.clintonbarkerproperty.com.au" target="_blank" rel="noopener noreferrer">www.clintonbarkerproperty.com.au</a> &nbsp;|&nbsp; 📅 <a href="https://calendly.com/clinton-barker-expaustralia/30min" target="_blank" rel="noopener noreferrer">Book a free 30-minute call</a>
+                🌐 <a href="https://www.clintonbarkerproperty.com.au" target="_blank" rel="noopener noreferrer">www.clintonbarkerproperty.com.au</a> &nbsp;|&nbsp; 📅 <a href="https://calendly.com/clinton-barker-expaustralia/schedule-a-call-with-clinton-barker" target="_blank" rel="noopener noreferrer">Book a free 30-minute call</a>
               </div>
             </div>
           </div>
