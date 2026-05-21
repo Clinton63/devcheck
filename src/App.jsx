@@ -11,6 +11,79 @@ import PaywallScreen from './components/PaywallScreen'
 const STPS_F = ["Mode","Preflight","Disclaimer","Site","Constraints","Concept","Exit","Costs","Result"]
 const STPS_T = ["Mode","Disclaimer","Site","Constraints","T&F","Result"]
 
+function inlineFmt(str) {
+  return str
+    .replace(/\*\*(.+?)\*\*/g, '<strong style="color:#F2F2F2;font-weight:600">$1</strong>')
+    .replace(/\*([^*]+?)\*/g, '<em>$1</em>')
+    .replace(/`([^`]+?)`/g, '<code style="background:#0D0D0D;padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px">$1</code>')
+}
+
+function renderMD(text) {
+  if (!text) return ''
+  const lines = text.split('\n')
+  let html = ''
+  let tableRows = []
+  let inTable = false
+
+  const flushTable = () => {
+    if (!tableRows.length) return
+    html += '<div style="overflow-x:auto;margin:14px 0"><table style="width:100%;border-collapse:collapse;font-size:13px">'
+    tableRows.forEach((row, i) => {
+      if (row.sep) return
+      const isHeader = i === 0
+      const tag = isHeader ? 'th' : 'td'
+      const rowBg = !isHeader && i % 2 === 0 ? 'background:#111111' : ''
+      html += `<tr style="${rowBg}">`
+      row.cells.forEach(cell => {
+        const val = inlineFmt(cell.trim())
+        const isNeg = !isHeader && /^-\$/.test(cell.trim())
+        const isPos = !isHeader && /^\$[1-9]/.test(cell.trim()) && !isNeg
+        const numColor = isNeg ? 'color:#EF4444' : isPos ? 'color:#34A86E' : 'color:#F2F2F2'
+        const style = isHeader
+          ? 'padding:8px 12px;border-bottom:2px solid #2E2E2E;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#A0A8B0;font-family:JetBrains Mono,monospace;font-weight:500'
+          : `padding:8px 12px;border-bottom:1px solid #1E1E1E;text-align:left;${numColor}`
+        html += `<${tag} style="${style}">${val}</${tag}>`
+      })
+      html += '</tr>'
+    })
+    html += '</table></div>'
+    tableRows = []
+    inTable = false
+  }
+
+  for (const line of lines) {
+    if (line.startsWith('|')) {
+      inTable = true
+      const cells = line.split('|').slice(1, -1)
+      if (cells.every(c => /^[-: ]+$/.test(c))) {
+        tableRows.push({ sep: true })
+      } else {
+        tableRows.push({ cells })
+      }
+      continue
+    }
+    if (inTable) flushTable()
+
+    if (line.startsWith('### ')) {
+      html += `<h3 style="font-family:'Cormorant Garamond',serif;font-size:19px;color:#F2F2F2;margin:18px 0 6px;font-weight:700">${inlineFmt(line.slice(4))}</h3>`
+    } else if (line.startsWith('## ')) {
+      html += `<h2 style="font-family:'Cormorant Garamond',serif;font-size:22px;color:#F2F2F2;margin:22px 0 8px;padding-bottom:7px;border-bottom:1px solid #2E2E2E;font-weight:700">${inlineFmt(line.slice(3))}</h2>`
+    } else if (line.startsWith('# ')) {
+      html += `<h1 style="font-family:'Cormorant Garamond',serif;font-size:26px;color:#F2F2F2;margin:0 0 18px;font-weight:700">${inlineFmt(line.slice(2))}</h1>`
+    } else if (/^[-*]{3,}$/.test(line.trim())) {
+      html += '<hr style="border:none;border-top:1px solid #2E2E2E;margin:18px 0"/>'
+    } else if (line.trim() === '') {
+      html += '<div style="height:6px"></div>'
+    } else if (line.startsWith('- ') || line.startsWith('* ')) {
+      html += `<div style="display:flex;gap:8px;margin:3px 0;padding-left:4px"><span style="color:#34A86E;margin-top:1px;flex-shrink:0">▸</span><span style="color:#A0A8B0;line-height:1.65">${inlineFmt(line.slice(2))}</span></div>`
+    } else {
+      html += `<p style="margin:4px 0;line-height:1.85;color:#E0E0E0">${inlineFmt(line)}</p>`
+    }
+  }
+  if (inTable) flushTable()
+  return html
+}
+
 export default function App() {
   // Auth state
   const [session, setSession] = useState(undefined) // undefined=loading, null=not authed
@@ -948,7 +1021,7 @@ export default function App() {
               {loading?(
                 <div className="ai-think"><div className="dots"><span/><span/><span/></div>Running full feasibility analysis…</div>
               ):(
-                <div className="ai-body" ref={aiRef}>{aiOut}</div>
+                <div className="ai-body" ref={aiRef} dangerouslySetInnerHTML={{__html: renderMD(aiOut)}} style={{whiteSpace:'normal'}}/>
               )}
             </div>
             {!loading&&aiOut&&(
