@@ -5,11 +5,10 @@ import { isDisposableEmail } from '../lib/disposableDomains'
 export default function EmailGate({ onVerified }) {
   const [screen, setScreen] = useState('email')
   const [email, setEmail] = useState('')
-  const [otp, setOtp] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  async function sendOtp(e) {
+  async function sendLink(e) {
     e.preventDefault()
     setError('')
     const trimmed = email.trim().toLowerCase()
@@ -19,35 +18,16 @@ export default function EmailGate({ onVerified }) {
       return
     }
     setLoading(true)
-    const { error: otpError } = await supabase.auth.signInWithOtp({
+    const { error: linkError } = await supabase.auth.signInWithOtp({
       email: trimmed,
-      options: { shouldCreateUser: true }
+      options: {
+        shouldCreateUser: true,
+        emailRedirectTo: window.location.origin
+      }
     })
     setLoading(false)
-    if (otpError) { setError(otpError.message); return }
-    setScreen('otp')
-  }
-
-  async function verifyOtp(e) {
-    e.preventDefault()
-    setError('')
-    if (otp.length < 6) { setError('Please enter the 6-digit code.'); return }
-    setLoading(true)
-    const { data, error: verifyError } = await supabase.auth.verifyOtp({
-      email: email.trim().toLowerCase(),
-      token: otp,
-      type: 'email'
-    })
-    setLoading(false)
-    if (verifyError) { setError('Invalid or expired code. Please try again.'); return }
-    onVerified(data.session)
-  }
-
-  async function resend() {
-    setError('')
-    setOtp('')
-    await supabase.auth.signInWithOtp({ email: email.trim().toLowerCase(), options: { shouldCreateUser: true } })
-    setError('New code sent.')
+    if (linkError) { setError(linkError.message); return }
+    setScreen('sent')
   }
 
   return (
@@ -66,7 +46,7 @@ export default function EmailGate({ onVerified }) {
             <div className="cstep">Get started</div>
             <div className="ctitle">2 free assessments</div>
             <div className="cdesc">Enter your email to access DevCheck. No credit card required.</div>
-            <form onSubmit={sendOtp}>
+            <form onSubmit={sendLink}>
               <div className="fl" style={{marginBottom:'14px'}}>
                 <label>Email address</label>
                 <input
@@ -80,45 +60,33 @@ export default function EmailGate({ onVerified }) {
               </div>
               {error && <div className="fh w" style={{marginBottom:'10px'}}>⚠ {error}</div>}
               <button className="bp" type="submit" disabled={loading} style={{width:'100%',justifyContent:'center'}}>
-                {loading ? 'Sending…' : 'Send verification code →'}
+                {loading ? 'Sending…' : 'Send sign-in link →'}
               </button>
             </form>
             <div style={{fontSize:'11px',color:'#6B7280',marginTop:'12px',textAlign:'center',lineHeight:'1.5'}}>
-              We'll send a 6-digit code to verify your email.<br/>
+              We'll email you a sign-in link. No password needed.<br/>
               Your details are kept private and never shared.
             </div>
           </div>
         )}
 
-        {screen === 'otp' && (
-          <div className="card">
-            <div className="cstep">Verify your email</div>
+        {screen === 'sent' && (
+          <div className="card" style={{textAlign:'center'}}>
+            <div style={{fontSize:'40px',marginBottom:'12px'}}>📧</div>
             <div className="ctitle">Check your inbox</div>
-            <div className="cdesc">We sent a 6-digit code to <strong>{email}</strong>. Enter the code below — do not click any link in the email.</div>
-            <form onSubmit={verifyOtp}>
-              <div className="fl" style={{marginBottom:'14px'}}>
-                <label>6-digit verification code</label>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  maxLength={6}
-                  placeholder="000000"
-                  value={otp}
-                  onChange={e => setOtp(e.target.value.replace(/\D/g,''))}
-                  autoFocus
-                  style={{fontSize:'22px',letterSpacing:'8px',textAlign:'center'}}
-                />
-              </div>
-              {error && <div className={`fh ${error==='New code sent.'?'ok':'w'}`} style={{marginBottom:'10px'}}>{error==='New code sent.'?'✓':'⚠'} {error}</div>}
-              <button className="bp" type="submit" disabled={loading || otp.length < 6} style={{width:'100%',justifyContent:'center'}}>
-                {loading ? 'Verifying…' : 'Verify & start →'}
-              </button>
-            </form>
-            <div style={{display:'flex',justifyContent:'space-between',marginTop:'12px',fontSize:'11px'}}>
-              <button onClick={() => setScreen('email')} style={{background:'none',border:'none',color:'#A0A8B0',cursor:'pointer',fontSize:'11px'}}>← Change email</button>
-              <button onClick={resend} style={{background:'none',border:'none',color:'#34A86E',cursor:'pointer',fontSize:'11px'}}>Resend code</button>
+            <div className="cdesc" style={{marginBottom:'20px'}}>
+              We sent a sign-in link to <strong>{email}</strong>.<br/>
+              Click the link in the email to access DevCheck.
             </div>
+            <div style={{fontSize:'11px',color:'#6B7280',lineHeight:'1.6'}}>
+              Link expires in 60 minutes. Check your spam folder if it doesn't arrive.
+            </div>
+            <button
+              onClick={() => { setScreen('email'); setError('') }}
+              style={{background:'none',border:'none',color:'#34A86E',cursor:'pointer',fontSize:'12px',marginTop:'16px'}}
+            >
+              ← Use a different email
+            </button>
           </div>
         )}
       </div>
