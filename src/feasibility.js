@@ -39,8 +39,15 @@ export function runTF({ landSize, dwellings, frontage, slope, easements, overlay
     else add("flick","Preliminary margin",`~${(m*100).toFixed(1)}% on cost — below 15%. Reconsider pricing or cost structure.`);
   }
   const pct = total > 0 ? score/total : 0;
+  // Hard cap: a failed or negative margin overrides site-characteristic score
+  const marginCheck = checks.find(c => c.label === "Preliminary margin")
+  const marginFailed = marginCheck && marginCheck.icon === "flick"
   let verdict, vClass;
-  if (pct >= 0.75) { verdict="PROCEED TO FULL FEASIBILITY"; vClass="PASS"; }
+  if (marginFailed) {
+    // Negative or sub-15% margin → cannot be a PASS regardless of site score
+    if (pct >= 0.75) { verdict="INVESTIGATE FURTHER — NUMBERS NEED WORK"; vClass="MARGINAL"; }
+    else { verdict="WALK AWAY — SITE HAS SIGNIFICANT ISSUES"; vClass="FAIL"; }
+  } else if (pct >= 0.75) { verdict="PROCEED TO FULL FEASIBILITY"; vClass="PASS"; }
   else if (pct >= 0.5) { verdict="INVESTIGATE FURTHER"; vClass="MARGINAL"; }
   else { verdict="WALK AWAY — SITE HAS SIGNIFICANT ISSUES"; vClass="FAIL"; }
   return { checks, verdict, vClass };
