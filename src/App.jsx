@@ -241,9 +241,8 @@ export default function App() {
           <div className="hdr">
             <div className="hdr-inner">
               <div>
-                <div className="eye">Clinton Barker Property · eXp Realty SA</div>
                 <div className="ttl">DevCheck</div>
-                <div className="sub">SA Development Feasibility Tool</div>
+                <div className="sub">South Australia · Development Feasibility</div>
               </div>
             </div>
           </div>
@@ -260,9 +259,8 @@ export default function App() {
         <div className="hdr">
           <div className="hdr-inner">
             <div>
-              <div className="eye">Clinton Barker Property · eXp Realty SA</div>
               <div className="ttl">DevCheck</div>
-              <div className="sub">South Australian Development Assessment Tool</div>
+              <div className="sub">South Australia · Development Feasibility</div>
             </div>
             <div className="hdr-r">
               {exp && <div className="badge">{exp}</div>}
@@ -291,7 +289,7 @@ export default function App() {
         {step===0&&(
           <div className="card anim">
             <div className="cstep">Welcome</div>
-            <div className="ctitle">DevCheck — SA Feasibility</div>
+            <div className="ctitle">DevCheck South Australia</div>
             <div className="cdesc">Professional step-by-step feasibility for South Australian residential development sites — from quick Tick &amp; Flick to full PASS/MARGINAL/FAIL analysis with risks and next steps.</div>
             <div style={{background:'rgba(52,168,110,0.06)',border:'1px solid #2E2E2E',borderLeft:'3px solid #34A86E',borderRadius:'8px',padding:'10px 14px',marginBottom:'4px',fontSize:'12px',color:'#8ECFB0',lineHeight:'1.5'}}>
               <strong>⚠ South Australia only.</strong> This tool uses SA Planning &amp; Design Code zones, SA Water and SAPN rules, and SA-specific cost benchmarks. It is not suitable for developments in other states.

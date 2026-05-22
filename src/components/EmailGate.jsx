@@ -2,11 +2,8 @@ import { useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { isDisposableEmail } from '../lib/disposableDomains'
 
-// EmailGate handles the full email → OTP → verified flow
-// Props:
-//   onVerified(session) — called when OTP verified successfully
 export default function EmailGate({ onVerified }) {
-  const [screen, setScreen] = useState('email') // 'email' | 'otp'
+  const [screen, setScreen] = useState('email')
   const [email, setEmail] = useState('')
   const [otp, setOtp] = useState('')
   const [loading, setLoading] = useState(false)
@@ -34,7 +31,7 @@ export default function EmailGate({ onVerified }) {
   async function verifyOtp(e) {
     e.preventDefault()
     setError('')
-    if (otp.length < 6) { setError('Please enter the verification code.'); return }
+    if (otp.length < 6) { setError('Please enter the 6-digit code.'); return }
     setLoading(true)
     const { data, error: verifyError } = await supabase.auth.verifyOtp({
       email: email.trim().toLowerCase(),
@@ -57,9 +54,8 @@ export default function EmailGate({ onVerified }) {
     <div style={{minHeight:'80vh',display:'flex',alignItems:'center',justifyContent:'center',padding:'20px'}}>
       <div style={{width:'100%',maxWidth:'420px'}}>
         <div style={{textAlign:'center',marginBottom:'28px'}}>
-          <div className="eye">Clinton Barker Property · eXp Realty SA</div>
           <div className="ttl" style={{fontSize:'28px',marginBottom:'4px'}}>DevCheck</div>
-          <div className="sub">SA Development Feasibility Tool</div>
+          <div className="sub">South Australia · Development Feasibility</div>
           <div style={{display:'inline-block',marginTop:'8px',background:'rgba(52,168,110,0.10)',border:'1px solid #34A86E',borderRadius:'4px',padding:'3px 10px',fontSize:'10px',color:'#8ECFB0',fontFamily:"'JetBrains Mono',monospace",letterSpacing:'.1em',textTransform:'uppercase'}}>
             South Australia only
           </div>
@@ -98,20 +94,20 @@ export default function EmailGate({ onVerified }) {
           <div className="card">
             <div className="cstep">Verify your email</div>
             <div className="ctitle">Check your inbox</div>
-            <div className="cdesc">We sent a 6-digit code to <strong>{email}</strong></div>
+            <div className="cdesc">We sent a 6-digit code to <strong>{email}</strong>. Enter the code below — do not click any link in the email.</div>
             <form onSubmit={verifyOtp}>
               <div className="fl" style={{marginBottom:'14px'}}>
-                <label>Verification code</label>
+                <label>6-digit verification code</label>
                 <input
                   type="text"
                   inputMode="numeric"
                   pattern="[0-9]*"
-                  maxLength={8}
+                  maxLength={6}
                   placeholder="000000"
                   value={otp}
                   onChange={e => setOtp(e.target.value.replace(/\D/g,''))}
                   autoFocus
-                  style={{fontSize:'22px',letterSpacing:'6px',textAlign:'center'}}
+                  style={{fontSize:'22px',letterSpacing:'8px',textAlign:'center'}}
                 />
               </div>
               {error && <div className={`fh ${error==='New code sent.'?'ok':'w'}`} style={{marginBottom:'10px'}}>{error==='New code sent.'?'✓':'⚠'} {error}</div>}
