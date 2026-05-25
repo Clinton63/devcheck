@@ -163,6 +163,8 @@ export default function App() {
   const [disc, setDisc] = useState(false)
   const [loading, setLoading] = useState(false)
   const [aiOut, setAiOut] = useState("")
+  const [emailSending, setEmailSending] = useState(false)
+  const [emailSent, setEmailSent] = useState(false)
   const [history, setHistory] = useState([])
   const [followUp, setFollowUp] = useState("")
   const [showPaywall, setShowPaywall] = useState(false)
@@ -172,6 +174,35 @@ export default function App() {
   const [lots, setLots] = useState([])
   const [costs, setCosts] = useState({purchasePrice:"",purchaseCostPct:"",targetProfit:"",buildTotal:"",buildM2:"",buildRateM2:"",demolition:"",civils:"",services:"",saWaterDistance:"",sapnConnection:"",contingencyPct:"",designFees:"",surveyorFees:"",engineeringFees:"",ipAssignment:"",legalFees:"",otherFees:"",marketing:"",authorityFees:"",landscaping:"",holdingRates:"",holdingInsurance:"",holdingOther:"",agentCommission:"",conveyancingType:"pct",conveyancingPct:"",conveyancingFixed:"",sellingCostPct:"",gstTreatment:"",lvr:"",rate:"",durationMonths:"",interestMethod:"A"})
   const aiRef = useRef(null)
+
+  const emailReport = async () => {
+    setEmailSending(true)
+    setEmailSent(false)
+    const dateStr = new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })
+    const htmlContent = `<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="font-family:Georgia,serif;font-size:13.5px;color:#111;background:#fff;padding:32px;max-width:820px;margin:0 auto;line-height:1.6">
+<div style="border-bottom:2px solid #111;padding-bottom:16px;margin-bottom:24px">
+  <div style="font-size:22px;font-weight:700;color:#111">DevCheck Feasibility Report</div>
+  <div style="font-size:14px;color:#555;margin-top:4px">${site.address || 'Development Site'}</div>
+  <div style="font-size:11px;color:#888;margin-top:2px">Generated ${dateStr}</div>
+</div>
+${renderMDLight(aiOut)}
+<div style="margin-top:32px;padding-top:16px;border-top:1px solid #d0d0d0;font-size:10.5px;color:#888;line-height:1.6">
+  <strong style="color:#555">Disclaimer:</strong> This report is a preliminary guide only. All figures must be independently verified with qualified professionals before any decision is made. Not financial, legal, planning or tax advice.<br/>
+  <strong style="color:#555">Clinton Barker Property · eXp Realty SA</strong> · 0409 904 473 · clinton.barker@expaustralia.com.au
+</div>
+</body></html>`
+    try {
+      const token = await getAccessToken()
+      const r = await fetch('/api/send-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ address: site.address, htmlContent })
+      })
+      if (r.ok) { setEmailSent(true) }
+      else { alert('Failed to send — please try again.') }
+    } catch { alert('Failed to send — please try again.') }
+    setEmailSending(false)
+  }
 
   const downloadPDF = () => {
     const dateStr = new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })
@@ -302,7 +333,7 @@ ${renderMDLight(aiOut)}
   }
 
   const doReset = () => {
-    setStep(0); setMode(null); setExp(null); setDisc(false); setAiOut(""); setHistory([]); setFollowUp(""); setShowPaywall(false)
+    setStep(0); setMode(null); setExp(null); setDisc(false); setAiOut(""); setHistory([]); setFollowUp(""); setShowPaywall(false); setEmailSent(false); setEmailSending(false)
     setSite({address:"",council:"",zoning:"",landSize:"",frontage:"",slope:"flat",easements:"none",easementNote:"",easementCost:"",overlays:"none",trees:"no",treeType:"",treesNote:""})
     setTf({dwellings:"",estGRV:"",estTotalCost:""})
     setConcept({dwellings:"",type:"townhouse",identical:"yes"})
@@ -1127,7 +1158,14 @@ ${renderMDLight(aiOut)}
               )}
             </div>
             {!loading&&aiOut&&(
-              <div style={{display:'flex',justifyContent:'flex-end',padding:'8px 0 2px'}}>
+              <div style={{display:'flex',justifyContent:'flex-end',gap:10,padding:'8px 0 2px'}}>
+                <button
+                  onClick={emailReport}
+                  disabled={emailSending}
+                  style={{background:'#1C1C1C',border:'1px solid #2E2E2E',borderRadius:6,color:emailSent?'#34A86E':'#8ECFB0',fontSize:12,padding:'8px 16px',cursor:'pointer',fontFamily:"'DM Sans',sans-serif",letterSpacing:'.02em',opacity:emailSending?0.6:1}}
+                >
+                  {emailSending ? 'Sending…' : emailSent ? '✓ Sent to your email' : '📧 Email Report'}
+                </button>
                 <button
                   onClick={downloadPDF}
                   style={{background:'#1C1C1C',border:'1px solid #2E2E2E',borderRadius:6,color:'#8ECFB0',fontSize:12,padding:'8px 16px',cursor:'pointer',fontFamily:"'DM Sans',sans-serif",letterSpacing:'.02em'}}
