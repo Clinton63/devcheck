@@ -84,6 +84,73 @@ function renderMD(text) {
   return html
 }
 
+function renderMDLight(text) {
+  if (!text) return ''
+  const lines = text.split('\n')
+  let html = ''
+  let tableRows = []
+  let inTable = false
+
+  const ifmt = str => str
+    .replace(/\*\*(.+?)\*\*/g, '<strong style="color:#111;font-weight:600">$1</strong>')
+    .replace(/\*([^*]+?)\*/g, '<em>$1</em>')
+    .replace(/`([^`]+?)`/g, '<code style="background:#f0f0f0;padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px">$1</code>')
+
+  const flushTable = () => {
+    if (!tableRows.length) return
+    html += '<div style="overflow-x:auto;margin:14px 0"><table style="width:100%;border-collapse:collapse;font-size:13px">'
+    tableRows.forEach((row, i) => {
+      if (row.sep) return
+      const isHeader = i === 0
+      const tag = isHeader ? 'th' : 'td'
+      const rowBg = !isHeader && i % 2 === 0 ? 'background:#f5f5f5' : ''
+      html += `<tr style="${rowBg}">`
+      row.cells.forEach(cell => {
+        const val = ifmt(cell.trim())
+        const isNeg = !isHeader && /^-\$/.test(cell.trim())
+        const isPos = !isHeader && /^\$[1-9]/.test(cell.trim()) && !isNeg
+        const numColor = isNeg ? 'color:#dc2626' : isPos ? 'color:#16a34a' : 'color:#111'
+        const style = isHeader
+          ? 'padding:8px 12px;border-bottom:2px solid #ccc;text-align:left;font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:#666;font-family:monospace;font-weight:500'
+          : `padding:8px 12px;border-bottom:1px solid #e8e8e8;text-align:left;${numColor}`
+        html += `<${tag} style="${style}">${val}</${tag}>`
+      })
+      html += '</tr>'
+    })
+    html += '</table></div>'
+    tableRows = []
+    inTable = false
+  }
+
+  for (const line of lines) {
+    if (line.startsWith('|')) {
+      inTable = true
+      const cells = line.split('|').slice(1, -1)
+      if (cells.every(c => /^[-: ]+$/.test(c))) { tableRows.push({ sep: true }) }
+      else { tableRows.push({ cells }) }
+      continue
+    }
+    if (inTable) flushTable()
+    if (line.startsWith('### ')) {
+      html += `<h3 style="font-size:17px;color:#111;margin:16px 0 5px;font-weight:700">${ifmt(line.slice(4))}</h3>`
+    } else if (line.startsWith('## ')) {
+      html += `<h2 style="font-size:20px;color:#111;margin:20px 0 7px;padding-bottom:6px;border-bottom:1px solid #ccc;font-weight:700">${ifmt(line.slice(3))}</h2>`
+    } else if (line.startsWith('# ')) {
+      html += `<h1 style="font-size:24px;color:#111;margin:0 0 16px;font-weight:700">${ifmt(line.slice(2))}</h1>`
+    } else if (/^[-*]{3,}$/.test(line.trim())) {
+      html += '<hr style="border:none;border-top:1px solid #ccc;margin:16px 0"/>'
+    } else if (line.trim() === '') {
+      html += '<div style="height:6px"></div>'
+    } else if (line.startsWith('- ') || line.startsWith('* ')) {
+      html += `<div style="display:flex;gap:8px;margin:3px 0;padding-left:4px"><span style="color:#16a34a;flex-shrink:0">▸</span><span style="color:#333;line-height:1.65">${ifmt(line.slice(2))}</span></div>`
+    } else {
+      html += `<p style="margin:4px 0;line-height:1.85;color:#222">${ifmt(line)}</p>`
+    }
+  }
+  if (inTable) flushTable()
+  return html
+}
+
 export default function App() {
   // Auth state
   const [session, setSession] = useState(undefined) // undefined=loading, null=not authed
@@ -105,6 +172,43 @@ export default function App() {
   const [lots, setLots] = useState([])
   const [costs, setCosts] = useState({purchasePrice:"",purchaseCostPct:"",targetProfit:"",buildTotal:"",buildM2:"",buildRateM2:"",demolition:"",civils:"",services:"",saWaterDistance:"",sapnConnection:"",contingencyPct:"",designFees:"",surveyorFees:"",engineeringFees:"",ipAssignment:"",legalFees:"",otherFees:"",marketing:"",authorityFees:"",landscaping:"",holdingRates:"",holdingInsurance:"",holdingOther:"",agentCommission:"",conveyancingType:"pct",conveyancingPct:"",conveyancingFixed:"",sellingCostPct:"",gstTreatment:"",lvr:"",rate:"",durationMonths:"",interestMethod:"A"})
   const aiRef = useRef(null)
+
+  const downloadPDF = () => {
+    const dateStr = new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })
+    const w = window.open('', '_blank')
+    if (!w) return
+    w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>DevCheck — ${site.address || 'Feasibility Report'}</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Georgia,serif;font-size:13.5px;color:#111;background:#fff;padding:32px;max-width:820px;margin:0 auto;line-height:1.6}
+@media print{body{padding:0}.no-print{display:none}}
+.hdr{border-bottom:2px solid #111;padding-bottom:16px;margin-bottom:24px}
+.hdr h1{font-size:22px;font-weight:700}
+.hdr .addr{font-size:14px;color:#555;margin-top:4px}
+.hdr .dt{font-size:11px;color:#888;margin-top:2px}
+.ftr{margin-top:32px;padding-top:16px;border-top:1px solid #d0d0d0;font-size:10.5px;color:#888;line-height:1.6}
+.no-print{margin-bottom:20px;display:flex;gap:10px}
+.no-print button{padding:8px 18px;border-radius:5px;cursor:pointer;font-size:13px;font-family:sans-serif;border:1px solid #ccc}
+.no-print button:first-child{background:#111;color:#fff;border-color:#111}
+</style></head><body>
+<div class="no-print">
+  <button onclick="window.print()">🖨 Print / Save as PDF</button>
+  <button onclick="window.close()">✕ Close</button>
+</div>
+<div class="hdr">
+  <h1>DevCheck Feasibility Report</h1>
+  <div class="addr">${site.address || 'Development Site'}</div>
+  <div class="dt">Generated ${dateStr}</div>
+</div>
+${renderMDLight(aiOut)}
+<div class="ftr">
+  <strong style="color:#555">Disclaimer:</strong> This report is a preliminary guide only. All figures must be independently verified with qualified professionals before any decision is made. Not financial, legal, planning or tax advice.<br/>
+  <strong style="color:#555">Clinton Barker Property · eXp Realty SA</strong> · 0409 904 473 · clinton.barker@expaustralia.com.au
+</div>
+</body></html>`)
+    w.document.close()
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -1022,6 +1126,16 @@ export default function App() {
                 <div className="ai-body" ref={aiRef} dangerouslySetInnerHTML={{__html: renderMD(aiOut)}} style={{whiteSpace:'normal'}}/>
               )}
             </div>
+            {!loading&&aiOut&&(
+              <div style={{display:'flex',justifyContent:'flex-end',padding:'8px 0 2px'}}>
+                <button
+                  onClick={downloadPDF}
+                  style={{background:'#1C1C1C',border:'1px solid #2E2E2E',borderRadius:6,color:'#8ECFB0',fontSize:12,padding:'8px 16px',cursor:'pointer',fontFamily:"'DM Sans',sans-serif",letterSpacing:'.02em'}}
+                >
+                  ⬇ Download PDF
+                </button>
+              </div>
+            )}
             {!loading&&aiOut&&(
               <div className="card">
                 <div className="cstep">Follow-up</div>
