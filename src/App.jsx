@@ -7,6 +7,7 @@ import EmailGate from './components/EmailGate'
 import UsageBadge from './components/UsageBadge'
 import PreflightChecklist from './components/PreflightChecklist'
 import PaywallScreen from './components/PaywallScreen'
+import PrivacyPolicy from './components/PrivacyPolicy'
 
 const STPS_F = ["Mode","Preflight","Disclaimer","Site","Constraints","Concept","Exit","Costs","Result"]
 const STPS_T = ["Mode","Disclaimer","Site","Constraints","T&F","Result"]
@@ -168,6 +169,7 @@ export default function App() {
   const [history, setHistory] = useState([])
   const [followUp, setFollowUp] = useState("")
   const [showPaywall, setShowPaywall] = useState(false)
+  const [showPrivacy, setShowPrivacy] = useState(false)
   const [site, setSite] = useState({address:"",council:"",zoning:"",landSize:"",frontage:"",slope:"flat",easements:"none",easementNote:"",easementCost:"",overlays:"none",trees:"no",treeType:"",treesNote:""})
   const [tf, setTf] = useState({dwellings:"",estGRV:"",estTotalCost:""})
   const [concept, setConcept] = useState({dwellings:"",type:"townhouse",identical:"yes"})
@@ -1198,10 +1200,13 @@ ${renderMDLight(aiOut)}
           </div>
         )}
 
+        {showPrivacy && <PrivacyPolicy onClose={() => setShowPrivacy(false)} />}
+
         {/* Footer */}
         <div style={{borderTop:'1px solid #2E2E2E',marginTop:40,paddingTop:16,paddingBottom:24,display:'flex',flexWrap:'wrap',alignItems:'center',justifyContent:'space-between',gap:10}}>
           <div style={{fontSize:11,color:'#6B7280',lineHeight:1.6}}>
             © {new Date().getFullYear()} Clinton Barker Property · eXp Realty SA &nbsp;·&nbsp; DevCheck is a preliminary guide only. Not financial, legal, planning or tax advice.
+            &nbsp;·&nbsp; <button onClick={() => setShowPrivacy(true)} style={{background:'none',border:'none',color:'#6B7280',fontSize:11,cursor:'pointer',padding:0,textDecoration:'underline',fontFamily:"'DM Sans',sans-serif"}}>Privacy Policy</button>
           </div>
           {userRecord?.subscribed && (
             <button
