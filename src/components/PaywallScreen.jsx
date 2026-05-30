@@ -26,39 +26,39 @@ export default function PaywallScreen({ onBack }) {
       <div className="cstep">Free assessments used</div>
       <div className="ctitle">Unlock unlimited access</div>
       <div className="cdesc">
-        Keep DevCheck as your go-to feasibility tool. Run unlimited Tick &amp; Flick checks, full feasibilities, and follow-up questions — all included.
+        Keep DevCheck as your go-to feasibility tool. Run unlimited Tick &amp; Flick checks and full feasibilities — ideal if you're exploring SA development sites and want clear, guided analysis without needing to be a numbers expert.
+      </div>
+
+      {/* Annual plan — best value */}
+      <div
+        style={{background:'rgba(52,168,110,0.08)',border:'2px solid #34A86E',borderRadius:'10px',padding:'18px',marginBottom:'10px',position:'relative',cursor:'pointer'}}
+        onClick={() => subscribe('annual')}
+      >
+        <div style={{position:'absolute',top:'-10px',right:'12px',background:'#34A86E',color:'#fff',fontSize:'9px',fontWeight:'700',letterSpacing:'.1em',padding:'3px 10px',borderRadius:'3px'}}>BEST VALUE</div>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:'3px'}}>
+          <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'17px',color:'#F2F2F2',fontWeight:'700'}}>Annual</div>
+          <div><span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'26px',color:'#F2F2F2',fontWeight:'700'}}>$149</span><span style={{fontSize:'12px',color:'#6B7280'}}> AUD/year</span></div>
+        </div>
+        <div style={{fontSize:'11px',color:'#34A86E',fontWeight:'600'}}>Just $12.42/month — save $79 vs monthly</div>
+        <button className="bp bp-gold" disabled={loading==='annual'} style={{width:'100%',justifyContent:'center',marginTop:'12px'}} onClick={e=>{e.stopPropagation();subscribe('annual')}}>
+          {loading==='annual' ? 'Redirecting…' : 'Subscribe annually — best value →'}
+        </button>
       </div>
 
       {/* Monthly plan */}
       <div
-        style={{background:'#111111',border:'2px solid #2E2E2E',borderRadius:'10px',padding:'18px',marginBottom:'10px',cursor:'pointer',transition:'border-color .2s'}}
+        style={{background:'#111111',border:'2px solid #2E2E2E',borderRadius:'10px',padding:'18px',marginBottom:'20px',cursor:'pointer',transition:'border-color .2s'}}
         onClick={() => subscribe('monthly')}
         onMouseEnter={e => e.currentTarget.style.borderColor='#34A86E'}
         onMouseLeave={e => e.currentTarget.style.borderColor='#2E2E2E'}
       >
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:'3px'}}>
           <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'17px',color:'#F2F2F2',fontWeight:'700'}}>Monthly</div>
-          <div><span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'26px',color:'#F2F2F2',fontWeight:'700'}}>$39</span><span style={{fontSize:'12px',color:'#6B7280'}}> AUD/month</span></div>
+          <div><span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'26px',color:'#F2F2F2',fontWeight:'700'}}>$19</span><span style={{fontSize:'12px',color:'#6B7280'}}> AUD/month</span></div>
         </div>
         <div style={{fontSize:'11px',color:'#6B7280'}}>Cancel anytime</div>
         <button className="bp" disabled={loading==='monthly'} style={{width:'100%',justifyContent:'center',marginTop:'12px'}} onClick={e=>{e.stopPropagation();subscribe('monthly')}}>
           {loading==='monthly' ? 'Redirecting…' : 'Subscribe monthly →'}
-        </button>
-      </div>
-
-      {/* Annual plan */}
-      <div
-        style={{background:'rgba(52,168,110,0.08)',border:'2px solid #34A86E',borderRadius:'10px',padding:'18px',marginBottom:'20px',position:'relative',cursor:'pointer'}}
-        onClick={() => subscribe('annual')}
-      >
-        <div style={{position:'absolute',top:'-10px',right:'12px',background:'#34A86E',color:'#fff',fontSize:'9px',fontWeight:'700',letterSpacing:'.1em',padding:'3px 10px',borderRadius:'3px'}}>BEST VALUE</div>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'baseline',marginBottom:'3px'}}>
-          <div style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'17px',color:'#F2F2F2',fontWeight:'700'}}>Annual</div>
-          <div><span style={{fontFamily:"'Cormorant Garamond',serif",fontSize:'26px',color:'#F2F2F2',fontWeight:'700'}}>$390</span><span style={{fontSize:'12px',color:'#6B7280'}}> AUD/year</span></div>
-        </div>
-        <div style={{fontSize:'11px',color:'#34A86E',fontWeight:'600'}}>Save $78 — equivalent to 2 months free</div>
-        <button className="bp bp-gold" disabled={loading==='annual'} style={{width:'100%',justifyContent:'center',marginTop:'12px'}} onClick={e=>{e.stopPropagation();subscribe('annual')}}>
-          {loading==='annual' ? 'Redirecting…' : 'Subscribe annually — best value →'}
         </button>
       </div>
 
