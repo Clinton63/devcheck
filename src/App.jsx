@@ -8,6 +8,7 @@ import UsageBadge from './components/UsageBadge'
 import PreflightChecklist from './components/PreflightChecklist'
 import PaywallScreen from './components/PaywallScreen'
 import PrivacyPolicy from './components/PrivacyPolicy'
+import DisclaimerModal from './components/DisclaimerModal'
 
 const STPS_F = ["Mode","Preflight","Disclaimer","Site","Constraints","Concept","Exit","Costs","Result"]
 const STPS_T = ["Mode","Disclaimer","Site","Constraints","T&F","Result"]
@@ -170,6 +171,7 @@ export default function App() {
   const [followUp, setFollowUp] = useState("")
   const [showPaywall, setShowPaywall] = useState(false)
   const [showPrivacy, setShowPrivacy] = useState(false)
+  const [showDisclaimer, setShowDisclaimer] = useState(false)
   const [site, setSite] = useState({address:"",council:"",zoning:"",landSize:"",frontage:"",slope:"flat",easements:"none",easementNote:"",easementCost:"",overlays:"none",trees:"no",treeType:"",treesNote:""})
   const [tf, setTf] = useState({dwellings:"",estGRV:"",estTotalCost:""})
   const [concept, setConcept] = useState({dwellings:"",type:"townhouse",identical:"yes"})
@@ -246,7 +248,10 @@ ${renderMDLight(aiOut)}
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session ?? null)
-      if (data.session) loadUserRecord()
+      if (data.session) {
+        loadUserRecord()
+        if (!localStorage.getItem('devcheck_disclaimer_accepted')) setShowDisclaimer(true)
+      }
     })
     if (window.location.search.includes('subscribed=true')) {
       window.history.replaceState({}, '', window.location.pathname)
@@ -254,7 +259,10 @@ ${renderMDLight(aiOut)}
     }
     const { data: listener } = supabase.auth.onAuthStateChange((_event, s) => {
       setSession(s ?? null)
-      if (s) loadUserRecord()
+      if (s) {
+        loadUserRecord()
+        if (!localStorage.getItem('devcheck_disclaimer_accepted')) setShowDisclaimer(true)
+      }
     })
     return () => listener.subscription.unsubscribe()
   }, [])
@@ -1134,9 +1142,8 @@ ${renderMDLight(aiOut)}
                 </div>
               )}
             </div>
-            <div className="card">
-              <div style={{fontSize:9,color:C.textMuted,letterSpacing:".12em",textTransform:"uppercase",fontFamily:"JetBrains Mono,monospace",marginBottom:10}}>Disclaimer</div>
-              <div style={{fontSize:12,color:C.textMuted,lineHeight:1.7}}>This Tick &amp; Flick is a preliminary guide only. Exact development potential must be confirmed by a town planner, surveyor, builder, engineer and council. Nothing stated here is financial, legal, planning or tax advice.</div>
+            <div style={{borderTop:'1px solid #2E2E2E',padding:'10px 0 4px',fontSize:11.5,color:'#6B7280',lineHeight:1.7}}>
+              This assessment is a guide only. Figures, feasibility outcomes, and development potential should be verified by a qualified professional before any decisions are made.
             </div>
             <div className="cta">
               <div className="cta-n">Clinton Barker — eXp Realty</div>
@@ -1177,6 +1184,11 @@ ${renderMDLight(aiOut)}
               </div>
             )}
             {!loading&&aiOut&&(
+              <div style={{borderTop:'1px solid #2E2E2E',marginTop:4,paddingTop:10,paddingBottom:4,fontSize:11.5,color:'#6B7280',lineHeight:1.7}}>
+                This assessment is a guide only. Figures, feasibility outcomes, and development potential should be verified by a qualified professional before any decisions are made.
+              </div>
+            )}
+            {!loading&&aiOut&&(
               <div className="card">
                 <div className="cstep">Follow-up</div>
                 <div className="ctitle" style={{fontSize:19}}>Ask a follow-up question</div>
@@ -1201,6 +1213,7 @@ ${renderMDLight(aiOut)}
         )}
 
         {showPrivacy && <PrivacyPolicy onClose={() => setShowPrivacy(false)} />}
+        {showDisclaimer && <DisclaimerModal onAccept={() => setShowDisclaimer(false)} />}
 
         {/* Footer */}
         <div style={{borderTop:'1px solid #2E2E2E',marginTop:40,paddingTop:16,paddingBottom:24,display:'flex',flexWrap:'wrap',alignItems:'center',justifyContent:'space-between',gap:10}}>
