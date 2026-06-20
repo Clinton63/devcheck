@@ -44,7 +44,7 @@ export default function EmailGate({ onVerified }) {
         {screen === 'email' && (
           <div className="card">
             <div className="cstep">Get started</div>
-            <div className="ctitle">2 free assessments</div>
+            <div className="ctitle">Free — no credit card</div>
             <div className="cdesc">Enter your email to access DevCheck. No credit card required.</div>
             <form onSubmit={sendLink}>
               <div className="fl" style={{marginBottom:'14px'}}>
