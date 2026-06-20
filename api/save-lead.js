@@ -52,7 +52,7 @@ export default async function handler(req, res) {
     method: 'POST',
     headers: { 'api-key': process.env.BREVO_API_KEY, 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      sender: { name: 'DevCheck', email: 'clinton.barker63@gmail.com' },
+      sender: { name: 'DevCheck', email: 'clinton@clintonbarkerproperty.com.au' },
       to: [{ email: 'clinton.barker@expaustralia.com.au' }],
       subject,
       htmlContent
