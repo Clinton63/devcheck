@@ -28,10 +28,10 @@ export default async function handler(req, res) {
 
   const { messages, system, isInitial } = req.body
 
-  // Enforce usage limit on initial feasibility calls only — admins are exempt
-  if (isInitial && !userData.subscribed && !userData.is_admin && userData.run_count >= 2) {
-    return res.status(402).json({ error: 'Usage limit reached' })
-  }
+  // FREE TIER — usage gate suspended. Uncomment to reinstate paid tier.
+  // if (isInitial && !userData.subscribed && !userData.is_admin && userData.run_count >= 2) {
+  //   return res.status(402).json({ error: 'Usage limit reached' })
+  // }
 
   // Call Claude API
   try {
@@ -44,16 +44,10 @@ export default async function handler(req, res) {
     })
     const reply = response.content.map(b => b.text || '').join('')
 
-    // Increment run_count for initial calls only — admins are exempt
+    // Increment run_count for analytics (non-blocking — no longer gates access)
     if (isInitial && !userData.is_admin) {
-      const { error: updateError } = await supabase
-        .from('users')
-        .update({ run_count: userData.run_count + 1 })
-        .eq('id', user.id)
-      if (updateError) {
-        console.error('run_count update failed:', updateError)
-        return res.status(500).json({ error: 'Usage tracking error. Please try again.' })
-      }
+      supabase.from('users').update({ run_count: userData.run_count + 1 }).eq('id', user.id)
+        .then(({ error }) => { if (error) console.error('run_count update failed:', error) })
     }
 
     return res.status(200).json({ reply })

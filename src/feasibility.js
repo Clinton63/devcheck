@@ -53,6 +53,38 @@ export function runTF({ landSize, dwellings, frontage, slope, easements, overlay
   return { checks, verdict, vClass };
 }
 
+// Compute the Full Feasibility verdict from lots + costs (mirrors the math in buildPromptFromState)
+export function computeFullVerdict({ lots, costs }) {
+  const grv=lots.reduce((s,l)=>s+(parseFloat(l.strategy==="sell"?l.salePrice:l.endValue)||0),0);
+  const soldGRV=lots.filter(l=>l.strategy==="sell").reduce((s,l)=>s+(parseFloat(l.salePrice)||0),0);
+  const buildTotal=parseFloat(costs.buildTotal||0);
+  const demo=parseFloat(costs.demolition||0);
+  const civils=parseFloat(costs.civils||0);
+  const services=parseFloat(costs.services||0);
+  const cont=(buildTotal+demo)*(parseFloat(costs.contingencyPct||0))/100;
+  const profFees=parseFloat(costs.designFees||0)+parseFloat(costs.surveyorFees||0)+parseFloat(costs.engineeringFees||0)+parseFloat(costs.ipAssignment||0)+parseFloat(costs.legalFees||0)+parseFloat(costs.otherFees||0);
+  const marketing=parseFloat(costs.marketing||0);
+  const authorities=parseFloat(costs.authorityFees||0);
+  const landscaping=parseFloat(costs.landscaping||0);
+  const holdingTotal=parseFloat(costs.holdingRates||0)+parseFloat(costs.holdingInsurance||0)+parseFloat(costs.holdingOther||0);
+  const pc=parseFloat(costs.purchasePrice||0)*(parseFloat(costs.purchaseCostPct||0))/100;
+  const agentCommissionCost=soldGRV*(parseFloat(costs.agentCommission||0))/100;
+  const conveyancingCost=costs.conveyancingType==="fixed"?parseFloat(costs.conveyancingFixed||0):soldGRV*(parseFloat(costs.conveyancingPct||0))/100;
+  const sellingCosts=agentCommissionCost+conveyancingCost;
+  const totalProjectCosts=buildTotal+demo+civils+services+cont+profFees+marketing+authorities+landscaping+holdingTotal;
+  const totalLandCosts=parseFloat(costs.purchasePrice||0)+pc;
+  const loan=(totalLandCosts+totalProjectCosts)*(parseFloat(costs.lvr||0))/100;
+  const interest=loan*(parseFloat(costs.rate||0))/100*(parseFloat(costs.durationMonths||0))/12*(costs.interestMethod==="A"?0.55:1);
+  const marginGST=Math.max(0,(soldGRV-parseFloat(costs.purchasePrice||0))/11);
+  const fullGST=soldGRV/11;
+  const gstNet=costs.gstTreatment==="margin"?marginGST:costs.gstTreatment==="full"?fullGST:0;
+  const tdc=totalLandCosts+totalProjectCosts+interest+sellingCosts+gstNet;
+  const profit=grv-tdc;
+  const marginPct=tdc>0?(profit/tdc*100):0;
+  const target=parseFloat(costs.targetProfit||20);
+  return marginPct>=target?"PASS":marginPct>=(target*0.75)?"MARGINAL":"FAIL";
+}
+
 // Build the full feasibility prompt from app state
 // Called with the full state object from App.jsx
 export function buildPromptFromState({ lots, costs, concept, site, exp }) {

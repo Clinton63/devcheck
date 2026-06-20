@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { supabase, getAccessToken, getUserRecord, signOut } from './lib/supabase'
 import { CSS, C } from './theme'
 import { SYSTEM_PROMPT } from './systemPrompt'
-import { runTF, fmt, buildPromptFromState } from './feasibility'
+import { runTF, fmt, buildPromptFromState, computeFullVerdict } from './feasibility'
 import EmailGate from './components/EmailGate'
 import UsageBadge from './components/UsageBadge'
 import PreflightChecklist from './components/PreflightChecklist'
@@ -10,8 +10,8 @@ import PaywallScreen from './components/PaywallScreen'
 import PrivacyPolicy from './components/PrivacyPolicy'
 import DisclaimerModal from './components/DisclaimerModal'
 
-const STPS_F = ["Mode","Preflight","Disclaimer","Site","Constraints","Concept","Exit","Costs","Result"]
-const STPS_T = ["Mode","Disclaimer","Site","Constraints","T&F","Result"]
+const STPS_F = ["Mode","Preflight","Disclaimer","Site","Constraints","Concept","Exit","Costs","Details","Result"]
+const STPS_T = ["Mode","Disclaimer","Site","Constraints","T&F","Details","Result"]
 
 function inlineFmt(str) {
   return str
@@ -169,9 +169,15 @@ export default function App() {
   const [emailSent, setEmailSent] = useState(false)
   const [history, setHistory] = useState([])
   const [followUp, setFollowUp] = useState("")
-  const [showPaywall, setShowPaywall] = useState(false)
+  // const [showPaywall, setShowPaywall] = useState(false) // FREE TIER — uncomment to reinstate paywall
   const [showPrivacy, setShowPrivacy] = useState(false)
   const [showDisclaimer, setShowDisclaimer] = useState(false)
+  const [leadInfo, setLeadInfo] = useState({ name: '', email: '', mobile: '' })
+  const [leadId, setLeadId] = useState(null)
+  const [leadLoading, setLeadLoading] = useState(false)
+  const [reviewInfo, setReviewInfo] = useState({ mobile: '', contactMethod: '' })
+  const [reviewLoading, setReviewLoading] = useState(false)
+  const [reviewSubmitted, setReviewSubmitted] = useState(false)
   const [site, setSite] = useState({address:"",council:"",zoning:"",landSize:"",frontage:"",slope:"flat",easements:"none",easementNote:"",easementCost:"",overlays:"none",trees:"no",treeType:"",treesNote:""})
   const [tf, setTf] = useState({dwellings:"",estGRV:"",estTotalCost:""})
   const [concept, setConcept] = useState({dwellings:"",type:"townhouse",identical:"yes"})
@@ -297,11 +303,12 @@ ${renderMDLight(aiOut)}
           isInitial,
         })
       })
-      if (r.status === 402) {
-        setShowPaywall(true)
-        setLoading(false)
-        return
-      }
+      // FREE TIER — paywall suspended. Uncomment to reinstate paid tier.
+      // if (r.status === 402) {
+      //   setShowPaywall(true)
+      //   setLoading(false)
+      //   return
+      // }
       if (!r.ok) { setAiOut("Connection error. Please try again."); setLoading(false); return }
       const d = await r.json()
       setAiOut(d.reply)
@@ -343,12 +350,50 @@ ${renderMDLight(aiOut)}
   }
 
   const doReset = () => {
-    setStep(0); setMode(null); setExp(null); setDisc(false); setAiOut(""); setHistory([]); setFollowUp(""); setShowPaywall(false); setEmailSent(false); setEmailSending(false)
+    setStep(0); setMode(null); setExp(null); setDisc(false); setAiOut(""); setHistory([]); setFollowUp(""); setEmailSent(false); setEmailSending(false)
+    setLeadInfo({ name: '', email: '', mobile: '' }); setLeadId(null); setLeadLoading(false)
+    setReviewInfo({ mobile: '', contactMethod: '' }); setReviewLoading(false); setReviewSubmitted(false)
     setSite({address:"",council:"",zoning:"",landSize:"",frontage:"",slope:"flat",easements:"none",easementNote:"",easementCost:"",overlays:"none",trees:"no",treeType:"",treesNote:""})
     setTf({dwellings:"",estGRV:"",estTotalCost:""})
     setConcept({dwellings:"",type:"townhouse",identical:"yes"})
     setLots([])
     setCosts({purchasePrice:"",purchaseCostPct:"",targetProfit:"",buildTotal:"",buildM2:"",buildRateM2:"",demolition:"",civils:"",services:"",saWaterDistance:"",sapnConnection:"",contingencyPct:"",designFees:"",surveyorFees:"",engineeringFees:"",ipAssignment:"",legalFees:"",otherFees:"",marketing:"",authorityFees:"",landscaping:"",holdingRates:"",holdingInsurance:"",holdingOther:"",agentCommission:"",conveyancingType:"pct",conveyancingPct:"",conveyancingFixed:"",sellingCostPct:"",gstTreatment:"",lvr:"",rate:"",durationMonths:"",interestMethod:"A"})
+  }
+
+  const submitLead = async () => {
+    if (!leadInfo.name || !leadInfo.email) return
+    setLeadLoading(true)
+    const suburb = (site.address.match(/,\s*([^,]+?)\s+SA\s+\d{4}/i) || [])[1] || ''
+    const verdict = mode === 'tickflick' ? runTF({...site, ...tf}).vClass : computeFullVerdict({ lots, costs })
+    try {
+      const token = await getAccessToken()
+      const r = await fetch('/api/save-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ name: leadInfo.name, email: leadInfo.email, mobile: leadInfo.mobile || null, address: site.address, suburb, landSize: site.landSize, frontage: site.frontage, verdict, mode })
+      })
+      if (r.ok) { const d = await r.json(); setLeadId(d.leadId) }
+    } catch (err) { console.error('Lead save error:', err) }
+    setLeadLoading(false)
+    const ns = step + 1
+    setStep(ns)
+    if (mode === 'full') callAI(buildPromptFromState({ lots, costs, concept, site, exp }), true, true)
+  }
+
+  const submitReview = async () => {
+    setReviewLoading(true)
+    const suburb = (site.address.match(/,\s*([^,]+?)\s+SA\s+\d{4}/i) || [])[1] || ''
+    const verdict = mode === 'tickflick' ? runTF({...site, ...tf}).vClass : computeFullVerdict({ lots, costs })
+    try {
+      const token = await getAccessToken()
+      await fetch('/api/update-lead', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+        body: JSON.stringify({ leadId, mobile: reviewInfo.mobile || null, propertyAddress: site.address, contactMethod: reviewInfo.contactMethod, name: leadInfo.name, email: leadInfo.email, suburb, verdict })
+      })
+    } catch (err) { console.error('Review submit error:', err) }
+    setReviewLoading(false)
+    setReviewSubmitted(true)
   }
 
   const tfResult = runTF({...site, ...tf})
@@ -377,25 +422,18 @@ ${renderMDLight(aiOut)}
     )
   }
 
-  // Paywall
-  if (showPaywall) {
-    return (
-      <>
-        <style>{CSS}</style>
-        <div className="app">
-          <div className="hdr">
-            <div className="hdr-inner">
-              <div>
-                <div className="ttl">DevCheck</div>
-                <div className="sub">South Australia · Development Feasibility</div>
-              </div>
-            </div>
-          </div>
-          <PaywallScreen onBack={() => setShowPaywall(false)} />
-        </div>
-      </>
-    )
-  }
+  // FREE TIER — paywall suspended. Uncomment to reinstate paid tier.
+  // if (showPaywall) {
+  //   return (
+  //     <>
+  //       <style>{CSS}</style>
+  //       <div className="app">
+  //         <div className="hdr"><div className="hdr-inner"><div><div className="ttl">DevCheck</div><div className="sub">South Australia · Development Feasibility</div></div></div></div>
+  //         <PaywallScreen onBack={() => setShowPaywall(false)} />
+  //       </div>
+  //     </>
+  //   )
+  // }
 
   return (
     <>
@@ -717,7 +755,7 @@ ${renderMDLight(aiOut)}
             </div>
             <div className="br">
               <button className="bs" onClick={()=>setStep(3)}>← Back</button>
-              <button className="bp" disabled={!canNext()} onClick={next}>Run Tick &amp; Flick →</button>
+              <button className="bp" disabled={!canNext()} onClick={next}>Continue →</button>
             </div>
           </div>
         )}
@@ -1110,14 +1148,43 @@ ${renderMDLight(aiOut)}
               })()}
               <div className="br">
                 <button className="bs" onClick={()=>setStep(6)}>← Back</button>
-                <button className="bp" disabled={!canNext()} onClick={next}>Run Full Feasibility →</button>
+                <button className="bp" disabled={!canNext()} onClick={next}>Continue →</button>
               </div>
             </div>
           </div>
         )}
 
-        {/* STEP 5 — T&F Result */}
-        {step===5&&mode==="tickflick"&&(
+        {/* STEP 8 (Full) / STEP 5 (T&F) — Details */}
+        {((step === 8 && mode === "full") || (step === 5 && mode === "tickflick")) && (
+          <div className="card anim">
+            <div className="cstep">Almost there</div>
+            <div className="ctitle">Enter your details</div>
+            <div className="cdesc">Enter your details to receive and save your DevCheck report. No credit card required.</div>
+            <div className="fg">
+              <div className="fl">
+                <label>First Name *</label>
+                <input placeholder="e.g. John" value={leadInfo.name} onChange={e=>setLeadInfo(p=>({...p,name:e.target.value}))}/>
+              </div>
+              <div className="fl">
+                <label>Email *</label>
+                <input type="email" placeholder="e.g. john@example.com" value={leadInfo.email} onChange={e=>setLeadInfo(p=>({...p,email:e.target.value}))}/>
+              </div>
+              <div className="fl">
+                <label>Mobile (optional)</label>
+                <input type="tel" placeholder="e.g. 0412 345 678" value={leadInfo.mobile} onChange={e=>setLeadInfo(p=>({...p,mobile:e.target.value}))}/>
+              </div>
+            </div>
+            <div className="br">
+              <button className="bs" onClick={()=>setStep(step-1)}>← Back</button>
+              <button className="bp" disabled={!leadInfo.name || !leadInfo.email || leadLoading} onClick={submitLead}>
+                {leadLoading ? 'Saving…' : 'View My Report →'}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 6 — T&F Result */}
+        {step===6&&mode==="tickflick"&&(
           <div className="anim">
             <div className="card">
               <div className="cstep">Tick &amp; Flick Result</div>
@@ -1145,6 +1212,36 @@ ${renderMDLight(aiOut)}
             <div style={{borderTop:'1px solid #2E2E2E',padding:'10px 0 4px',fontSize:11.5,color:'#6B7280',lineHeight:1.7}}>
               This assessment is a guide only. Figures, feasibility outcomes, and development potential should be verified by a qualified professional before any decisions are made.
             </div>
+            {!reviewSubmitted ? (
+              <div className="card" style={{marginTop:16}}>
+                <div className="ctitle" style={{fontSize:17}}>Want Clinton to personally review this property?</div>
+                <div className="cdesc" style={{marginBottom:14}}>What it means for sale or development strategy — optional, no obligation.</div>
+                <div className="fg">
+                  <div className="fl">
+                    <label>Your Mobile (optional)</label>
+                    <input type="tel" placeholder="e.g. 0412 345 678" value={reviewInfo.mobile} onChange={e=>setReviewInfo(p=>({...p,mobile:e.target.value}))}/>
+                  </div>
+                  <div className="fl">
+                    <label>Preferred contact method</label>
+                    <div className="seg">
+                      {["Phone","Email","Either"].map(m=>(
+                        <button key={m} className={`sb ${reviewInfo.contactMethod===m?"on":""}`} onClick={()=>setReviewInfo(p=>({...p,contactMethod:m}))}>{m}</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="br">
+                  <button className="bp" disabled={reviewLoading} onClick={submitReview}>
+                    {reviewLoading ? 'Sending…' : 'Request Personal Review →'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="card" style={{marginTop:16,background:'rgba(52,168,110,0.06)',border:'1px solid #34A86E'}}>
+                <div style={{fontSize:14,color:'#8ECFB0',fontWeight:600}}>✓ Request received</div>
+                <div style={{fontSize:13,color:'#A0A8B0',marginTop:6}}>Clinton will be in touch soon to discuss this property.</div>
+              </div>
+            )}
             <div className="cta">
               <div className="cta-n">Clinton Barker — eXp Realty</div>
               <div className="cta-d">📞 <a href="tel:0409904473">0409 904 473</a> &nbsp;|&nbsp; 📧 <a href="mailto:clinton.barker@expaustralia.com.au">clinton.barker@expaustralia.com.au</a><br/>📅 <a href="https://calendly.com/clinton-barker-expaustralia/schedule-a-call-with-clinton-barker" target="_blank" rel="noopener noreferrer">Book a free 30-minute call</a></div>
@@ -1152,7 +1249,7 @@ ${renderMDLight(aiOut)}
           </div>
         )}
 
-        {/* STEP 8 — Full Result */}
+        {/* STEP 9 — Full Result */}
         {step===steps.length-1&&mode==="full"&&(
           <div className="anim">
             <div className="ai-wrap">
@@ -1201,6 +1298,36 @@ ${renderMDLight(aiOut)}
                 </div>
               </div>
             )}
+            {!loading&&aiOut&&(!reviewSubmitted ? (
+              <div className="card" style={{marginTop:16}}>
+                <div className="ctitle" style={{fontSize:17}}>Want Clinton to personally review this property?</div>
+                <div className="cdesc" style={{marginBottom:14}}>What it means for sale or development strategy — optional, no obligation.</div>
+                <div className="fg">
+                  <div className="fl">
+                    <label>Your Mobile (optional)</label>
+                    <input type="tel" placeholder="e.g. 0412 345 678" value={reviewInfo.mobile} onChange={e=>setReviewInfo(p=>({...p,mobile:e.target.value}))}/>
+                  </div>
+                  <div className="fl">
+                    <label>Preferred contact method</label>
+                    <div className="seg">
+                      {["Phone","Email","Either"].map(m=>(
+                        <button key={m} className={`sb ${reviewInfo.contactMethod===m?"on":""}`} onClick={()=>setReviewInfo(p=>({...p,contactMethod:m}))}>{m}</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="br">
+                  <button className="bp" disabled={reviewLoading} onClick={submitReview}>
+                    {reviewLoading ? 'Sending…' : 'Request Personal Review →'}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="card" style={{marginTop:16,background:'rgba(52,168,110,0.06)',border:'1px solid #34A86E'}}>
+                <div style={{fontSize:14,color:'#8ECFB0',fontWeight:600}}>✓ Request received</div>
+                <div style={{fontSize:13,color:'#A0A8B0',marginTop:6}}>Clinton will be in touch soon to discuss this property.</div>
+              </div>
+            ))}
             <div className="cta">
               <div className="cta-n">Clinton Barker — eXp Realty</div>
               <div className="cta-d">
