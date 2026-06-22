@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://devcheck.clintonbarkerproperty.com.au/sitemap.xml

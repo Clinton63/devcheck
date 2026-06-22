@@ -1,0 +1,23 @@
+# DevCheck
+
+> DevCheck is a free, step-by-step property development feasibility tool for small-to-medium residential developments (1–12 dwellings) in South Australia. It is built on the methodology of Clinton Barker Property (eXp Realty, SA).
+
+DevCheck helps property developers, investors and homeowners quickly assess whether a South Australian residential development site stacks up financially — before committing money to plans, planners or builders.
+
+## What it does
+- **Tick & Flick** — a 3–5 minute go/no-go site assessment for a fast verdict.
+- **Full Feasibility** — a 15–25 minute analysis producing a PASS / MARGINAL / FAIL verdict with profit, margin on cost, key risks and recommended next steps.
+- Handles South Australian specifics: Planning & Design Code zoning, SA Water and SAPN connection costs, GST treatment (margin scheme / full / absorbed), slope and site constraints.
+- Produces an emailable and printable PDF feasibility report.
+
+## Who it's for
+Property developers, investors and homeowners considering small-to-medium residential development (subdivision, townhouses, units) in South Australia — particularly the northern Adelaide councils (Salisbury, Playford, Tea Tree Gully and surrounds).
+
+## Important
+DevCheck is calibrated for South Australian residential developments only and provides a preliminary guide based strictly on user inputs. It is not financial, legal, planning or tax advice; all figures must be verified with qualified professionals.
+
+## About
+- Built by Clinton Barker — Clinton Barker Property, eXp Realty (South Australia).
+- Website: https://www.clintonbarkerproperty.com.au
+- App: https://devcheck.clintonbarkerproperty.com.au
+- Contact: clinton.barker@expaustralia.com.au · 0409 904 473
