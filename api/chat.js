@@ -37,17 +37,20 @@ export default async function handler(req, res) {
   try {
     const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
     const response = await anthropic.messages.create({
-      model: 'claude-opus-4-5',
+      model: 'claude-opus-4-8',
       max_tokens: 4000,
       system,
       messages,
     })
     const reply = response.content.map(b => b.text || '').join('')
 
-    // Increment run_count for analytics (non-blocking — no longer gates access)
+    // Increment run_count for analytics (no longer gates access)
     if (isInitial && !userData.is_admin) {
-      supabase.from('users').update({ run_count: userData.run_count + 1 }).eq('id', user.id)
-        .then(({ error }) => { if (error) console.error('run_count update failed:', error) })
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({ run_count: userData.run_count + 1 })
+        .eq('id', user.id)
+      if (updateError) console.error('run_count update failed:', updateError)
     }
 
     return res.status(200).json({ reply })
