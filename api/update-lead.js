@@ -41,16 +41,26 @@ export default async function handler(req, res) {
     </table>
   `
 
-  fetch('https://api.brevo.com/v3/smtp/email', {
-    method: 'POST',
-    headers: { 'api-key': process.env.BREVO_API_KEY, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      sender: { name: 'DevCheck', email: 'clinton@clintonbarkerproperty.com.au' },
-      to: [{ email: 'clinton.barker@expaustralia.com.au' }],
-      subject,
-      htmlContent
+  // Await the notification so it completes before the serverless function
+  // returns (otherwise Vercel can freeze the instance and drop the send).
+  // A notification failure must NOT fail the request.
+  try {
+    const notifyRes = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: { 'api-key': process.env.BREVO_API_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sender: { name: 'DevCheck', email: 'clinton@clintonbarkerproperty.com.au' },
+        to: [{ email: 'clinton.barker@expaustralia.com.au' }],
+        subject,
+        htmlContent
+      })
     })
-  }).catch(err => console.error('Brevo notification error:', err))
+    if (!notifyRes.ok) {
+      console.error('Brevo notification error:', await notifyRes.text())
+    }
+  } catch (err) {
+    console.error('Brevo notification error:', err)
+  }
 
   return res.status(200).json({ ok: true })
 }
